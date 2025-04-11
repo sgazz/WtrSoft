@@ -1,0 +1,5 @@
+import Foundation
+
+struct Config {
+    static let apiKey = "YOUR_ACTUAL_API_KEY"
+} 
