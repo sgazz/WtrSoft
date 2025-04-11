@@ -175,6 +175,13 @@ class ThemeManager: ObservableObject {
     init() {
         self.currentTheme = ThemeColors.current()
         startTimer()
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateThemeFromSettings),
+            name: UserDefaults.didChangeNotification,
+            object: nil
+        )
     }
     
     func updateTimezone(_ timezone: TimeZone) {
@@ -182,27 +189,51 @@ class ThemeManager: ObservableObject {
         updateTheme()
     }
     
+    @objc private func updateThemeFromSettings() {
+        updateTheme()
+    }
+    
     private func updateTheme() {
+        let newTheme: ThemeColors
         switch selectedTheme {
         case "light":
-            currentTheme = ThemeColors.light
+            newTheme = ThemeColors.light
         case "dark":
-            currentTheme = ThemeColors.dark
+            newTheme = ThemeColors.dark
         case "system":
-            currentTheme = ThemeColors.system
+            newTheme = ThemeColors.system
         default: // "auto"
-            currentTheme = ThemeColors.current(timezone: cityTimezone)
+            newTheme = ThemeColors.current(timezone: cityTimezone)
+        }
+        
+        // Ažuriramo temu samo ako se stvarno promenila
+        if !areThemesEqual(currentTheme, newTheme) {
+            DispatchQueue.main.async {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    self.currentTheme = newTheme
+                }
+            }
         }
     }
     
+    private func areThemesEqual(_ theme1: ThemeColors, _ theme2: ThemeColors) -> Bool {
+        // Poredimo samo relevantne vrednosti koje možemo porediti
+        theme1.text == theme2.text &&
+        theme1.accent == theme2.accent &&
+        theme1.secondary == theme2.secondary &&
+        theme1.cardBackground == theme2.cardBackground &&
+        theme1.cardShadow == theme2.cardShadow
+    }
+    
     private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { [weak self] _ in
             self?.updateTheme()
         }
     }
     
     deinit {
         timer?.invalidate()
+        NotificationCenter.default.removeObserver(self)
     }
     
     var animationDuration: Double {
@@ -312,31 +343,62 @@ struct WeatherView: View {
     // Izdvajamo kontrole u zasebnu computed property
     private var controlsView: some View {
         VStack(spacing: 20) {
-            // Dugmad za jezik i JSON
             HStack(spacing: 15) {
+                Button(action: {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        viewModel.fetchWeather(for: viewModel.cityName)
+                    }
+                }) {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.title3)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(LinearGradient(
+                                    gradient: Gradient(colors: [themeManager.currentTheme.accent, themeManager.currentTheme.secondary]),
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                ))
+                                .shadow(color: themeManager.currentTheme.accent.opacity(0.3), radius: 10)
+                        )
+                        .frame(width: 90)
+                }
+                .buttonStyle(ScaleButtonStyle())
+                
                 Spacer()
+                
                 Button(action: { showingSettings = true }) {
                     Image(systemName: "gear")
-                        .font(.title2)
+                        .font(.title3)
                         .foregroundColor(.white)
-                        .padding(12)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
                         .background(
-                            Circle()
-                                .fill(Color.white.opacity(0.2))
-                                .shadow(color: themeManager.currentTheme.cardShadow, radius: 8, x: 0, y: 4)
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(LinearGradient(
+                                    gradient: Gradient(colors: [themeManager.currentTheme.accent, themeManager.currentTheme.secondary]),
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                ))
+                                .shadow(color: themeManager.currentTheme.accent.opacity(0.3), radius: 10)
                         )
+                        .frame(width: 90)
                 }
+                .buttonStyle(ScaleButtonStyle())
             }
             
-            // Search bar sa poboljšanim dizajnom
+            // Search bar
             HStack(spacing: 15) {
                 HStack {
                     Image(systemName: "magnifyingglass")
-                        .foregroundColor(.gray)
+                        .foregroundColor(themeManager.currentTheme.text.opacity(0.6))
                         .padding(.leading, 8)
                     
                     TextField(localizationManager.localizedString(.enterCity), text: $viewModel.cityName)
                         .textFieldStyle(PlainTextFieldStyle())
+                        .foregroundColor(themeManager.currentTheme.text)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
                         .onChange(of: viewModel.cityName) { oldValue, newValue in
@@ -348,12 +410,12 @@ struct WeatherView: View {
                 .padding(12)
                 .background(
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white.opacity(0.9))
-                        .background(
+                        .fill(themeManager.currentTheme.cardBackground)
+                        .shadow(color: themeManager.currentTheme.cardShadow, radius: 10)
+                        .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white.opacity(0.5), lineWidth: 1)
+                                .stroke(themeManager.currentTheme.text.opacity(0.2), lineWidth: 1)
                         )
-                        .shadow(color: themeManager.currentTheme.cardShadow, radius: 10, x: 0, y: 5)
                 )
                 
                 Button(action: {
@@ -370,11 +432,11 @@ struct WeatherView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 20)
                                 .fill(LinearGradient(
-                                    gradient: Gradient(colors: [Color(hex: "1E90FF"), Color(hex: "4169E1")]),
+                                    gradient: Gradient(colors: [themeManager.currentTheme.accent, themeManager.currentTheme.secondary]),
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 ))
-                                .shadow(color: themeManager.currentTheme.cardShadow, radius: 10, x: 0, y: 5)
+                                .shadow(color: themeManager.currentTheme.accent.opacity(0.3), radius: 10)
                         )
                 }
                 .scaleEffect(isSearching ? 1.05 : 1.0)
@@ -977,11 +1039,12 @@ private struct ForecastView: View {
     @AppStorage("enableAnimations") private var enableAnimations = true
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
+        VStack(alignment: .center, spacing: 15) {
             Text(localizationManager.localizedString(.forecast))
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(themeManager.currentTheme.text)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.horizontal)
                 .opacity(isAppeared ? 1 : 0)
                 .offset(y: isAppeared ? 0 : 20)
@@ -1386,64 +1449,106 @@ private struct AnimatedWeatherIcon: View {
     @State private var isHovering = false
     @EnvironmentObject private var themeManager: ThemeManager
     
+    private var isNightTime: Bool {
+        let hour = Calendar.current.component(.hour, from: Date())
+        return hour < 6 || hour >= 20
+    }
+    
+    private var animation: Animation {
+        Animation.easeInOut(duration: 2.0).repeatForever(autoreverses: true)
+    }
+    
     private var systemImage: String {
-        switch condition.lowercased() {
-        case let c where c.contains("clear sky"):
-            return "sun.max.fill"
-        case let c where c.contains("few clouds"):
-            return "cloud.sun.fill"
-        case let c where c.contains("scattered clouds"):
-            return "cloud.fill"
-        case let c where c.contains("broken clouds"):
-            return "smoke.fill"
-        case let c where c.contains("shower rain"):
-            return "cloud.heavyrain.fill"
-        case let c where c.contains("rain"):
-            return "cloud.rain.fill"
-        case let c where c.contains("thunderstorm"):
-            return "cloud.bolt.rain.fill"
-        case let c where c.contains("snow"):
-            return "snow"
-        case let c where c.contains("mist") || c.contains("fog"):
-            return "cloud.fog.fill"
-        case let c where c.contains("drizzle"):
-            return "cloud.drizzle.fill"
-        default:
-            return "cloud.fill"
+        let baseCondition = condition.lowercased()
+        
+        if isNightTime {
+            switch baseCondition {
+            case let c where c.contains("clear"):
+                return "moon.stars.fill"
+            case let c where c.contains("few clouds"):
+                return "cloud.moon.fill"
+            case let c where c.contains("scattered clouds"):
+                return "cloud.moon.fill"
+            case let c where c.contains("broken clouds"):
+                return "cloud.moon.fill"
+            case let c where c.contains("shower rain"):
+                return "cloud.moon.rain.fill"
+            case let c where c.contains("rain"):
+                return "cloud.moon.rain.fill"
+            case let c where c.contains("thunderstorm"):
+                return "cloud.moon.bolt.fill"
+            case let c where c.contains("snow"):
+                return "cloud.moon.snow.fill"
+            case let c where c.contains("mist") || c.contains("fog"):
+                return "cloud.fog.fill"
+            case let c where c.contains("drizzle"):
+                return "cloud.moon.rain.fill"
+            default:
+                return "moon.fill"
+            }
+        } else {
+            switch baseCondition {
+            case let c where c.contains("clear"):
+                return "sun.max.fill"
+            case let c where c.contains("few clouds"):
+                return "cloud.sun.fill"
+            case let c where c.contains("scattered clouds"):
+                return "cloud.fill"
+            case let c where c.contains("broken clouds"):
+                return "smoke.fill"
+            case let c where c.contains("shower rain"):
+                return "cloud.heavyrain.fill"
+            case let c where c.contains("rain"):
+                return "cloud.rain.fill"
+            case let c where c.contains("thunderstorm"):
+                return "cloud.bolt.rain.fill"
+            case let c where c.contains("snow"):
+                return "snow"
+            case let c where c.contains("mist") || c.contains("fog"):
+                return "cloud.fog.fill"
+            case let c where c.contains("drizzle"):
+                return "cloud.drizzle.fill"
+            default:
+                return "sun.max.fill"
+            }
         }
     }
     
     private var iconColor: Color {
-        switch condition.lowercased() {
-        case let c where c.contains("clear sky"):
-            return .yellow
-        case let c where c.contains("clouds"):
-            return .white
-        case let c where c.contains("rain"):
-            return .blue
-        case let c where c.contains("thunderstorm"):
-            return .purple
-        case let c where c.contains("snow"):
-            return .white
-        case let c where c.contains("mist") || c.contains("fog"):
-            return .white.opacity(0.8)
-        default:
-            return .white
-        }
-    }
-    
-    private var animation: Animation {
-        switch condition.lowercased() {
-        case let c where c.contains("clear sky"):
-            return .easeInOut(duration: 8).repeatForever(autoreverses: true)
-        case let c where c.contains("clouds"):
-            return .easeInOut(duration: 10).repeatForever(autoreverses: true)
-        case let c where c.contains("rain"):
-            return .easeInOut(duration: 8).repeatForever(autoreverses: true)
-        case let c where c.contains("thunderstorm"):
-            return .easeInOut(duration: 9).repeatForever(autoreverses: true)
-        default:
-            return .easeInOut(duration: 8).repeatForever(autoreverses: true)
+        if isNightTime {
+            switch condition.lowercased() {
+            case let c where c.contains("clear"):
+                return .white
+            case let c where c.contains("clouds"):
+                return .white.opacity(0.9)
+            case let c where c.contains("rain"):
+                return .blue.opacity(0.8)
+            case let c where c.contains("thunderstorm"):
+                return .purple.opacity(0.9)
+            case let c where c.contains("snow"):
+                return .white
+            case let c where c.contains("mist") || c.contains("fog"):
+                return .white.opacity(0.7)
+            default:
+                return .white
+            }
+        } else {
+            switch condition.lowercased() {
+            case let c where c.contains("clear"):
+                return .yellow
+            case let c where c.contains("clouds"):
+                return .white
+            case let c where c.contains("rain"):
+                return .blue
+            case let c where c.contains("thunderstorm"):
+                return .purple
+            case let c where c.contains("snow"):
+                return .white
+            case let c where c.contains("mist") || c.contains("fog"):
+                return .white.opacity(0.8)
+            default:
+                return .white
+            }
         }
     }
     
@@ -1456,7 +1561,7 @@ private struct AnimatedWeatherIcon: View {
             .padding(.vertical, 20)
             .onAppear {
                 withAnimation(animation) {
-                    isHovering = true
+                    isHovering.toggle()
                 }
             }
     }
@@ -1483,5 +1588,26 @@ struct CardModifier: ViewModifier {
                         y: 5
                     )
             )
+    }
+}
+
+// Dodajemo Equatable za ThemeColors da bismo mogli da poredimo teme
+extension ThemeColors: Equatable {
+    static func == (lhs: ThemeColors, rhs: ThemeColors) -> Bool {
+        // Poredimo samo vrednosti koje možemo porediti
+        lhs.text == rhs.text &&
+        lhs.accent == rhs.accent &&
+        lhs.secondary == rhs.secondary &&
+        lhs.cardBackground == rhs.cardBackground &&
+        lhs.cardShadow == rhs.cardShadow
+    }
+}
+
+// Dodajemo novi ButtonStyle za lepši efekat pritiska
+struct ScaleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.9 : 1)
+            .animation(.spring(response: 0.2, dampingFraction: 0.6), value: configuration.isPressed)
     }
 } 
