@@ -115,6 +115,9 @@ enum LocalizationKey {
     case privacy
     case collectUsageData
     case locationAccess
+    case showTemperature
+    case showHumidity
+    case showWind
     
     func localizedString(for language: Language) -> String {
         switch language {
@@ -204,6 +207,9 @@ enum LocalizationKey {
         case .privacy: return "Privacy"
         case .collectUsageData: return "Collect Usage Data"
         case .locationAccess: return "Location Access"
+        case .showTemperature: return "Show Temperature"
+        case .showHumidity: return "Show Humidity"
+        case .showWind: return "Show Wind"
         }
     }
     
@@ -282,6 +288,9 @@ enum LocalizationKey {
         case .privacy: return "Datenschutz"
         case .collectUsageData: return "Nutzungsdaten sammeln"
         case .locationAccess: return "Standortzugriff"
+        case .showTemperature: return "Temperatur anzeigen"
+        case .showHumidity: return "Luftfeuchtigkeit anzeigen"
+        case .showWind: return "Wind anzeigen"
         }
     }
     
@@ -360,6 +369,9 @@ enum LocalizationKey {
         case .privacy: return "Конфиденциальность"
         case .collectUsageData: return "Сбор данных об использовании"
         case .locationAccess: return "Доступ к местоположению"
+        case .showTemperature: return "Показывать температуру"
+        case .showHumidity: return "Показывать влажность"
+        case .showWind: return "Показывать ветер"
         }
     }
     
@@ -438,6 +450,9 @@ enum LocalizationKey {
         case .privacy: return "Privatnost"
         case .collectUsageData: return "Prikupljanje podataka o korišćenju"
         case .locationAccess: return "Pristup lokaciji"
+        case .showTemperature: return "Prikazati temperaturu"
+        case .showHumidity: return "Prikazati vlažnost"
+        case .showWind: return "Prikazati vetar"
         }
     }
 } 

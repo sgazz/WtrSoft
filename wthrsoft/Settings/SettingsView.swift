@@ -1,143 +1,208 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject private var themeManager: ThemeManager
-    @EnvironmentObject private var localizationManager: LocalizationManager
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("useMetricSystem") private var useMetricSystem = true
-    @AppStorage("showNotifications") private var showNotifications = true
-    @AppStorage("updateInterval") private var updateInterval = 30 // minuti
-    @AppStorage("selectedTheme") private var selectedTheme = "auto"
-    @AppStorage("showMoonDetails") private var showMoonDetails = true
-    @AppStorage("showWindDetails") private var showWindDetails = true
-    @AppStorage("showPressureDetails") private var showPressureDetails = true
-    @AppStorage("enableAnimations") private var enableAnimations = true
-    @AppStorage("animationSpeed") private var animationSpeed = "normal"
-    @AppStorage("collectUsageData") private var collectUsageData = true
-    @AppStorage("locationAccess") private var locationAccess = true
+    @Environment(\.colorScheme) private var colorScheme
+    @StateObject private var themeManager = ThemeManager()
+    @StateObject private var localizationManager = LocalizationManager.shared
+    @State private var selectedLanguage = "sr"
+    @State private var selectedTheme = "auto"
+    @State private var showTemperature = true
+    @State private var showHumidity = true
+    @State private var showWind = true
+    @State private var animationsEnabled = true
+    @State private var locationEnabled = true
+    @State private var deviceDataEnabled = true
+    
+    private var isDarkMode: Bool {
+        colorScheme == .dark
+    }
+    
+    private var backgroundColor: Color {
+        isDarkMode ? Color(red: 0.1, green: 0.1, blue: 0.12) : Color(red: 0.95, green: 0.95, blue: 0.97)
+    }
+    
+    private var textColor: Color {
+        isDarkMode ? .white : .black
+    }
+    
+    private var secondaryTextColor: Color {
+        isDarkMode ? .gray : .gray.opacity(0.8)
+    }
+    
+    private var accentColor: Color {
+        isDarkMode ? Color(red: 0.4, green: 0.7, blue: 1.0) : Color(red: 0.0, green: 0.5, blue: 1.0)
+    }
     
     var body: some View {
         NavigationView {
-            List {
-                // Jezička podešavanja
-                Section(header: Text(localizationManager.localizedString(.language))) {
-                    Picker(selection: $localizationManager.currentLanguage) {
-                        ForEach(Language.allCases) { language in
-                            Text(language.displayName)
-                                .tag(language)
+            ZStack {
+                backgroundColor.ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 20) {
+                        settingsSection(title: localizationManager.localizedString(.language), icon: "globe") {
+                            languagePicker
                         }
-                    } label: {
-                        Label(localizationManager.localizedString(.selectLanguage),
-                              systemImage: "globe")
-                    }
-                }
-                
-                // Tema
-                Section(header: Text(localizationManager.localizedString(.theme))) {
-                    Picker(selection: $selectedTheme) {
-                        Text(localizationManager.localizedString(.themeAuto)).tag("auto")
-                        Text(localizationManager.localizedString(.themeLight)).tag("light")
-                        Text(localizationManager.localizedString(.themeDark)).tag("dark")
-                        Text(localizationManager.localizedString(.themeSystem)).tag("system")
-                    } label: {
-                        Label(localizationManager.localizedString(.selectTheme),
-                              systemImage: "paintbrush")
-                    }
-                }
-                
-                // Sistem merenja
-                Section(header: Text(localizationManager.localizedString(.units))) {
-                    Toggle(isOn: $useMetricSystem) {
-                        Label(localizationManager.localizedString(.useMetric),
-                              systemImage: "ruler")
-                    }
-                }
-                
-                // Prikaz podataka
-                Section(header: Text(localizationManager.localizedString(.dataDisplay))) {
-                    Toggle(isOn: $showMoonDetails) {
-                        Label(localizationManager.localizedString(.showMoonDetails),
-                              systemImage: "moon.stars")
-                    }
-                    Toggle(isOn: $showWindDetails) {
-                        Label(localizationManager.localizedString(.showWindDetails),
-                              systemImage: "wind")
-                    }
-                    Toggle(isOn: $showPressureDetails) {
-                        Label(localizationManager.localizedString(.showPressureDetails),
-                              systemImage: "gauge.medium")
-                    }
-                }
-                
-                // Animacije
-                Section(header: Text(localizationManager.localizedString(.animations))) {
-                    Toggle(isOn: $enableAnimations) {
-                        Label(localizationManager.localizedString(.enableAnimations),
-                              systemImage: "sparkles")
-                    }
-                    if enableAnimations {
-                        Picker(selection: $animationSpeed) {
-                            Text(localizationManager.localizedString(.animationSpeedFast)).tag("fast")
-                            Text(localizationManager.localizedString(.animationSpeedNormal)).tag("normal")
-                            Text(localizationManager.localizedString(.animationSpeedSlow)).tag("slow")
-                        } label: {
-                            Label(localizationManager.localizedString(.animationSpeed),
-                                  systemImage: "speedometer")
+                        
+                        settingsSection(title: localizationManager.localizedString(.theme), icon: "paintbrush") {
+                            themePicker
+                        }
+                        
+                        settingsSection(title: localizationManager.localizedString(.dataDisplay), icon: "chart.bar") {
+                            dataDisplayOptions
+                        }
+                        
+                        settingsSection(title: localizationManager.localizedString(.animations), icon: "sparkles") {
+                            animationToggle
+                        }
+                        
+                        settingsSection(title: localizationManager.localizedString(.privacy), icon: "lock.shield") {
+                            privacyOptions
                         }
                     }
-                }
-                
-                // Notifikacije
-                Section(header: Text(localizationManager.localizedString(.notifications))) {
-                    Toggle(isOn: $showNotifications) {
-                        Label(localizationManager.localizedString(.enableNotifications),
-                              systemImage: "bell.fill")
-                    }
-                }
-                
-                // Interval ažuriranja
-                Section(header: Text(localizationManager.localizedString(.updateSettings))) {
-                    Picker(selection: $updateInterval) {
-                        Text("15 \(localizationManager.localizedString(.minutes))").tag(15)
-                        Text("30 \(localizationManager.localizedString(.minutes))").tag(30)
-                        Text("60 \(localizationManager.localizedString(.minutes))").tag(60)
-                    } label: {
-                        Label(localizationManager.localizedString(.updateInterval),
-                              systemImage: "clock")
-                    }
-                }
-                
-                // Privatnost
-                Section(header: Text(localizationManager.localizedString(.privacy))) {
-                    Toggle(isOn: $collectUsageData) {
-                        Label(localizationManager.localizedString(.collectUsageData),
-                              systemImage: "chart.bar")
-                    }
-                    Toggle(isOn: $locationAccess) {
-                        Label(localizationManager.localizedString(.locationAccess),
-                              systemImage: "location")
-                    }
-                }
-                
-                // O aplikaciji
-                Section(header: Text(localizationManager.localizedString(.about))) {
-                    HStack {
-                        Text(localizationManager.localizedString(.version))
-                        Spacer()
-                        Text("1.0.0")
-                            .foregroundColor(.secondary)
-                    }
+                    .padding()
                 }
             }
             .navigationTitle(localizationManager.localizedString(.settings))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(textColor)
+                    }
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(localizationManager.localizedString(.done)) {
-                        dismiss()
+                    Button(action: saveSettings) {
+                        Text(localizationManager.localizedString(.done))
+                            .foregroundColor(accentColor)
                     }
                 }
             }
+            .onAppear {
+                // Učitaj sačuvane vrednosti
+                selectedTheme = UserDefaults.standard.string(forKey: "selectedTheme") ?? "auto"
+                showTemperature = UserDefaults.standard.bool(forKey: "showTemperature")
+                showHumidity = UserDefaults.standard.bool(forKey: "showHumidity")
+                showWind = UserDefaults.standard.bool(forKey: "showWind")
+                animationsEnabled = UserDefaults.standard.bool(forKey: "animationsEnabled")
+                locationEnabled = UserDefaults.standard.bool(forKey: "locationEnabled")
+                deviceDataEnabled = UserDefaults.standard.bool(forKey: "deviceDataEnabled")
+            }
         }
     }
+    
+    private func settingsSection<Content: View>(title: String, icon: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 15) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(accentColor)
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(textColor)
+            }
+            
+            content()
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 15)
+                .fill(isDarkMode ? Color(red: 0.15, green: 0.15, blue: 0.17) : .white)
+                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        )
+    }
+    
+    private var languagePicker: some View {
+        Picker("", selection: $localizationManager.currentLanguage) {
+            ForEach(Language.allCases) { language in
+                Text(language.displayName)
+                    .tag(language)
+            }
+        }
+        .pickerStyle(.segmented)
+    }
+    
+    private var themePicker: some View {
+        Picker("", selection: $selectedTheme) {
+            Text(localizationManager.localizedString(.themeAuto)).tag("auto")
+            Text(localizationManager.localizedString(.themeLight)).tag("light")
+            Text(localizationManager.localizedString(.themeDark)).tag("dark")
+            Text(localizationManager.localizedString(.themeSystem)).tag("system")
+        }
+        .pickerStyle(.segmented)
+        .onChange(of: selectedTheme) { _, newValue in
+            UserDefaults.standard.set(newValue, forKey: "selectedTheme")
+            NotificationCenter.default.post(name: NSNotification.Name("ThemeChanged"), object: nil)
+        }
+    }
+    
+    private var dataDisplayOptions: some View {
+        VStack(spacing: 15) {
+            Toggle(isOn: $showTemperature) {
+                Text(LocalizationKey.showTemperature.localizedString(for: localizationManager.currentLanguage))
+            }
+            .onChange(of: showTemperature) { oldValue, newValue in
+                UserDefaults.standard.set(newValue, forKey: "showTemperature")
+            }
+            
+            Toggle(isOn: $showHumidity) {
+                Text(LocalizationKey.showHumidity.localizedString(for: localizationManager.currentLanguage))
+            }
+            .onChange(of: showHumidity) { oldValue, newValue in
+                UserDefaults.standard.set(newValue, forKey: "showHumidity")
+            }
+            
+            Toggle(isOn: $showWind) {
+                Text(LocalizationKey.showWind.localizedString(for: localizationManager.currentLanguage))
+            }
+            .onChange(of: showWind) { oldValue, newValue in
+                UserDefaults.standard.set(newValue, forKey: "showWind")
+            }
+        }
+    }
+    
+    private var animationToggle: some View {
+        Toggle(localizationManager.localizedString(.enableAnimations), isOn: $animationsEnabled)
+            .onChange(of: animationsEnabled) { _, newValue in
+                UserDefaults.standard.set(newValue, forKey: "animationsEnabled")
+            }
+    }
+    
+    private var privacyOptions: some View {
+        VStack(spacing: 15) {
+            Toggle(localizationManager.localizedString(.locationAccess), isOn: $locationEnabled)
+                .onChange(of: locationEnabled) { _, newValue in
+                    UserDefaults.standard.set(newValue, forKey: "locationEnabled")
+                }
+            
+            Toggle(localizationManager.localizedString(.collectUsageData), isOn: $deviceDataEnabled)
+                .onChange(of: deviceDataEnabled) { _, newValue in
+                    UserDefaults.standard.set(newValue, forKey: "deviceDataEnabled")
+                }
+        }
+    }
+    
+    private func saveSettings() {
+        // Sačuvaj sve promene
+        UserDefaults.standard.set(selectedTheme, forKey: "selectedTheme")
+        UserDefaults.standard.set(showTemperature, forKey: "showTemperature")
+        UserDefaults.standard.set(showHumidity, forKey: "showHumidity")
+        UserDefaults.standard.set(showWind, forKey: "showWind")
+        UserDefaults.standard.set(animationsEnabled, forKey: "animationsEnabled")
+        UserDefaults.standard.set(locationEnabled, forKey: "locationEnabled")
+        UserDefaults.standard.set(deviceDataEnabled, forKey: "deviceDataEnabled")
+        
+        // Objavi promene
+        NotificationCenter.default.post(name: NSNotification.Name("ThemeChanged"), object: nil)
+        NotificationCenter.default.post(name: NSNotification.Name("SettingsChanged"), object: nil)
+        
+        // Zatvori view
+        dismiss()
+    }
+}
+
+#Preview {
+    SettingsView()
 } 
