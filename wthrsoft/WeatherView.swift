@@ -161,6 +161,9 @@ class ThemeManager: ObservableObject {
     @Published var currentTheme: ThemeColors
     private var timer: Timer?
     private var cityTimezone: TimeZone?
+    @AppStorage("selectedTheme") private var selectedTheme = "auto"
+    @AppStorage("enableAnimations") private var enableAnimations = true
+    @AppStorage("animationSpeed") private var animationSpeed = "normal"
     
     init() {
         self.currentTheme = ThemeColors.current()
@@ -173,7 +176,16 @@ class ThemeManager: ObservableObject {
     }
     
     private func updateTheme() {
-        currentTheme = ThemeColors.current(timezone: cityTimezone)
+        switch selectedTheme {
+        case "light":
+            currentTheme = ThemeColors.light
+        case "dark":
+            currentTheme = ThemeColors.dark
+        case "system":
+            currentTheme = ThemeColors.system
+        default: // "auto"
+            currentTheme = ThemeColors.current(timezone: cityTimezone)
+        }
     }
     
     private func startTimer() {
@@ -185,6 +197,77 @@ class ThemeManager: ObservableObject {
     deinit {
         timer?.invalidate()
     }
+    
+    var animationDuration: Double {
+        switch animationSpeed {
+        case "fast": return 0.3
+        case "slow": return 0.9
+        default: return 0.6 // "normal"
+        }
+    }
+    
+    var animationResponse: Double {
+        switch animationSpeed {
+        case "fast": return 0.2
+        case "slow": return 0.8
+        default: return 0.6 // "normal"
+        }
+    }
+    
+    var animationDampingFraction: Double {
+        switch animationSpeed {
+        case "fast": return 0.5
+        case "slow": return 0.9
+        default: return 0.7 // "normal"
+        }
+    }
+}
+
+// Dodajemo nove teme
+extension ThemeColors {
+    static var light: ThemeColors {
+        ThemeColors(
+            background: LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "FFFFFF").opacity(0.9),
+                    Color(hex: "F0F0F0").opacity(0.8),
+                    Color(hex: "E0E0E0").opacity(0.7)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            text: Color(hex: "000000"),
+            accent: Color(hex: "007AFF"),
+            secondary: Color(hex: "5856D6"),
+            cardBackground: Color.white.opacity(0.8)
+        )
+    }
+    
+    static var dark: ThemeColors {
+        ThemeColors(
+            background: LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "000000").opacity(0.9),
+                    Color(hex: "1C1C1E").opacity(0.8),
+                    Color(hex: "2C2C2E").opacity(0.7)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            text: Color(hex: "FFFFFF"),
+            accent: Color(hex: "0A84FF"),
+            secondary: Color(hex: "5E5CE6"),
+            cardBackground: Color.black.opacity(0.5)
+        )
+    }
+    
+    static var system: ThemeColors {
+        if #available(iOS 13.0, *) {
+            return UITraitCollection.current.userInterfaceStyle == .dark ? .dark : .light
+        } else {
+            return .light
+        }
+    }
 }
 
 struct WeatherView: View {
@@ -193,6 +276,7 @@ struct WeatherView: View {
     @StateObject private var themeManager = ThemeManager()
     @State private var showingLanguagePicker = false
     @State private var showingJSONData = false
+    @State private var showingSettings = false
     @State private var isSearching = false
     
     // Izdvajamo pozadinu u zasebnu computed property
@@ -222,20 +306,8 @@ struct WeatherView: View {
             // Dugmad za jezik i JSON
             HStack(spacing: 15) {
                 Spacer()
-                Button(action: { showingLanguagePicker = true }) {
-                    Image(systemName: "globe")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .padding(12)
-                        .background(
-                            Circle()
-                                .fill(Color.white.opacity(0.2))
-                                .shadow(color: Color.black.opacity(0.1), radius: 5)
-                        )
-                }
-                
-                Button(action: { showingJSONData = true }) {
-                    Image(systemName: "curlybraces")
+                Button(action: { showingSettings = true }) {
+                    Image(systemName: "gear")
                         .font(.title2)
                         .foregroundColor(.white)
                         .padding(12)
@@ -364,6 +436,19 @@ struct WeatherView: View {
                 .preferredColorScheme(.light)
                 .environmentObject(themeManager)
         }
+        .sheet(isPresented: $showingSettings) {
+            SettingsView()
+                .environmentObject(themeManager)
+                .environmentObject(localizationManager)
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { showingSettings = true }) {
+                    Image(systemName: "gear")
+                        .foregroundColor(themeManager.currentTheme.accent)
+                }
+            }
+        }
     }
 }
 
@@ -376,6 +461,10 @@ private struct WeatherInfoView: View {
     @State private var isAppeared = false
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @EnvironmentObject private var themeManager: ThemeManager
+    @AppStorage("showMoonDetails") private var showMoonDetails = true
+    @AppStorage("showWindDetails") private var showWindDetails = true
+    @AppStorage("showPressureDetails") private var showPressureDetails = true
+    @AppStorage("enableAnimations") private var enableAnimations = true
     
     private var weatherCondition: String {
         weather.weather.first?.description ?? ""
@@ -537,13 +626,15 @@ private struct WeatherInfoView: View {
                 delay: 0.2,
                 condition: weatherCondition
             )
-            WeatherDataRow(
-                title: localizationManager.localizedString(.wind),
-                value: "\(weather.wind.speed) m/s",
-                icon: "wind",
-                delay: 0.3,
-                condition: weatherCondition
-            )
+            if showWindDetails {
+                WeatherDataRow(
+                    title: localizationManager.localizedString(.wind),
+                    value: "\(weather.wind.speed) m/s",
+                    icon: "wind",
+                    delay: 0.3,
+                    condition: weatherCondition
+                )
+            }
             WeatherDataRow(
                 title: localizationManager.localizedString(.humidity),
                 value: "\(weather.main.humidity)%",
@@ -551,13 +642,15 @@ private struct WeatherInfoView: View {
                 delay: 0.4,
                 condition: weatherCondition
             )
-            WeatherDataRow(
-                title: localizationManager.localizedString(.pressure),
-                value: "\(weather.main.pressure) hPa",
-                icon: "gauge.medium",
-                delay: 0.5,
-                condition: weatherCondition
-            )
+            if showPressureDetails {
+                WeatherDataRow(
+                    title: localizationManager.localizedString(.pressure),
+                    value: "\(weather.main.pressure) hPa",
+                    icon: "gauge.medium",
+                    delay: 0.5,
+                    condition: weatherCondition
+                )
+            }
             WeatherDataRow(
                 title: localizationManager.localizedString(.visibility),
                 value: "\(weather.visibility / 1000) km",
@@ -579,38 +672,36 @@ private struct WeatherInfoView: View {
                 delay: 0.8,
                 condition: weatherCondition
             )
-            // Dodajemo fazu meseca
-            WeatherDataRow(
-                title: localizationManager.localizedString(.moonPhase),
-                value: moonPhaseName(for: Date()),
-                icon: moonPhase(for: Date()),
-                delay: 0.9,
-                condition: weatherCondition
-            )
-            // Dodajemo procenat osvetljenosti meseca
-            WeatherDataRow(
-                title: localizationManager.localizedString(.moonIllumination),
-                value: "\(moonIllumination(for: Date()))%",
-                icon: "moon.stars.fill",
-                delay: 1.0,
-                condition: weatherCondition
-            )
-            // Dodajemo vreme izlaska meseca
-            WeatherDataRow(
-                title: localizationManager.localizedString(.moonRise),
-                value: moonRiseSet(for: Date()).rise,
-                icon: "moonrise.fill",
-                delay: 1.1,
-                condition: weatherCondition
-            )
-            // Dodajemo vreme zalaska meseca
-            WeatherDataRow(
-                title: localizationManager.localizedString(.moonSet),
-                value: moonRiseSet(for: Date()).set,
-                icon: "moonset.fill",
-                delay: 1.2,
-                condition: weatherCondition
-            )
+            if showMoonDetails {
+                WeatherDataRow(
+                    title: localizationManager.localizedString(.moonPhase),
+                    value: moonPhaseName(for: Date()),
+                    icon: moonPhase(for: Date()),
+                    delay: 0.9,
+                    condition: weatherCondition
+                )
+                WeatherDataRow(
+                    title: localizationManager.localizedString(.moonIllumination),
+                    value: "\(moonIllumination(for: Date()))%",
+                    icon: "moon.stars.fill",
+                    delay: 1.0,
+                    condition: weatherCondition
+                )
+                WeatherDataRow(
+                    title: localizationManager.localizedString(.moonRise),
+                    value: moonRiseSet(for: Date()).rise,
+                    icon: "moonrise.fill",
+                    delay: 1.1,
+                    condition: weatherCondition
+                )
+                WeatherDataRow(
+                    title: localizationManager.localizedString(.moonSet),
+                    value: moonRiseSet(for: Date()).set,
+                    icon: "moonset.fill",
+                    delay: 1.2,
+                    condition: weatherCondition
+                )
+            }
         }
     }
     
@@ -657,7 +748,14 @@ private struct WeatherInfoView: View {
         .padding(.horizontal)
         .onAppear {
             updateTime()
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            if enableAnimations {
+                withAnimation(.spring(
+                    response: themeManager.animationResponse,
+                    dampingFraction: themeManager.animationDampingFraction
+                )) {
+                    isAppeared = true
+                }
+            } else {
                 isAppeared = true
             }
         }
@@ -712,6 +810,7 @@ private struct TemperatureChartView: View {
     let forecast: ForecastResponse
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var isAppeared = false
+    @AppStorage("enableAnimations") private var enableAnimations = true
     
     private var next24Hours: [ForecastItem] {
         let now = Date()
@@ -829,7 +928,13 @@ private struct TemperatureChartView: View {
                             .frame(width: geometry.size.width / CGFloat(next24Hours.count))
                             .offset(y: y - 15)
                             .opacity(isAppeared ? 1 : 0)
-                            .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1 * Double(index)), value: isAppeared)
+                            .animation(
+                                enableAnimations ? .spring(
+                                    response: themeManager.animationResponse,
+                                    dampingFraction: themeManager.animationDampingFraction
+                                ).delay(0.1 * Double(index)) : nil,
+                                value: isAppeared
+                            )
                         }
                     }
                 }
@@ -845,7 +950,14 @@ private struct TemperatureChartView: View {
         )
         .padding(.horizontal)
         .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            if enableAnimations {
+                withAnimation(.spring(
+                    response: themeManager.animationResponse,
+                    dampingFraction: themeManager.animationDampingFraction
+                )) {
+                    isAppeared = true
+                }
+            } else {
                 isAppeared = true
             }
         }
@@ -858,6 +970,7 @@ private struct ForecastView: View {
     @State private var selectedItem: ForecastItem?
     @State private var isAppeared = false
     @EnvironmentObject private var themeManager: ThemeManager
+    @AppStorage("enableAnimations") private var enableAnimations = true
     
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -877,7 +990,14 @@ private struct ForecastView: View {
                                        isSelected: selectedItem?.id == item.id,
                                        delay: Double(index) * 0.1)
                             .onTapGesture {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                if enableAnimations {
+                                    withAnimation(.spring(
+                                        response: themeManager.animationResponse,
+                                        dampingFraction: themeManager.animationDampingFraction
+                                    )) {
+                                        selectedItem = selectedItem?.id == item.id ? nil : item
+                                    }
+                                } else {
                                     selectedItem = selectedItem?.id == item.id ? nil : item
                                 }
                             }
@@ -900,7 +1020,14 @@ private struct ForecastView: View {
         )
         .padding(.horizontal)
         .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            if enableAnimations {
+                withAnimation(.spring(
+                    response: themeManager.animationResponse,
+                    dampingFraction: themeManager.animationDampingFraction
+                )) {
+                    isAppeared = true
+                }
+            } else {
                 isAppeared = true
             }
         }

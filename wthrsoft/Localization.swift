@@ -84,6 +84,37 @@ enum LocalizationKey {
     case moonIllumination
     case moonRise
     case moonSet
+    case settings
+    case language
+    case units
+    case useMetric
+    case notifications
+    case enableNotifications
+    case updateSettings
+    case updateInterval
+    case minutes
+    case about
+    case version
+    case done
+    case theme
+    case themeAuto
+    case themeLight
+    case themeDark
+    case themeSystem
+    case selectTheme
+    case dataDisplay
+    case showMoonDetails
+    case showWindDetails
+    case showPressureDetails
+    case animations
+    case enableAnimations
+    case animationSpeed
+    case animationSpeedFast
+    case animationSpeedNormal
+    case animationSpeedSlow
+    case privacy
+    case collectUsageData
+    case locationAccess
     
     func localizedString(for language: Language) -> String {
         switch language {
@@ -142,6 +173,37 @@ enum LocalizationKey {
         case .moonIllumination: return "Illumination"
         case .moonRise: return "Moonrise"
         case .moonSet: return "Moonset"
+        case .settings: return "Settings"
+        case .language: return "Language"
+        case .units: return "Units"
+        case .useMetric: return "Use Metric System"
+        case .notifications: return "Notifications"
+        case .enableNotifications: return "Enable Notifications"
+        case .updateSettings: return "Update Settings"
+        case .updateInterval: return "Update Interval"
+        case .minutes: return "minutes"
+        case .about: return "About"
+        case .version: return "Version"
+        case .done: return "Done"
+        case .theme: return "Theme"
+        case .themeAuto: return "Automatic"
+        case .themeLight: return "Light"
+        case .themeDark: return "Dark"
+        case .themeSystem: return "System"
+        case .selectTheme: return "Select Theme"
+        case .dataDisplay: return "Data Display"
+        case .showMoonDetails: return "Show Moon Details"
+        case .showWindDetails: return "Show Wind Details"
+        case .showPressureDetails: return "Show Pressure Details"
+        case .animations: return "Animations"
+        case .enableAnimations: return "Enable Animations"
+        case .animationSpeed: return "Animation Speed"
+        case .animationSpeedFast: return "Fast"
+        case .animationSpeedNormal: return "Normal"
+        case .animationSpeedSlow: return "Slow"
+        case .privacy: return "Privacy"
+        case .collectUsageData: return "Collect Usage Data"
+        case .locationAccess: return "Location Access"
         }
     }
     
@@ -189,6 +251,37 @@ enum LocalizationKey {
         case .moonIllumination: return "Beleuchtung"
         case .moonRise: return "Mondaufgang"
         case .moonSet: return "Monduntergang"
+        case .settings: return "Einstellungen"
+        case .language: return "Sprache"
+        case .units: return "Einheiten"
+        case .useMetric: return "Metrisches System verwenden"
+        case .notifications: return "Benachrichtigungen"
+        case .enableNotifications: return "Benachrichtigungen aktivieren"
+        case .updateSettings: return "Aktualisierungseinstellungen"
+        case .updateInterval: return "Aktualisierungsintervall"
+        case .minutes: return "Minuten"
+        case .about: return "Über"
+        case .version: return "Version"
+        case .done: return "Fertig"
+        case .theme: return "Design"
+        case .themeAuto: return "Automatisch"
+        case .themeLight: return "Hell"
+        case .themeDark: return "Dunkel"
+        case .themeSystem: return "System"
+        case .selectTheme: return "Design auswählen"
+        case .dataDisplay: return "Datenanzeige"
+        case .showMoonDetails: return "Monddetails anzeigen"
+        case .showWindDetails: return "Winddetails anzeigen"
+        case .showPressureDetails: return "Druckdetails anzeigen"
+        case .animations: return "Animationen"
+        case .enableAnimations: return "Animationen aktivieren"
+        case .animationSpeed: return "Animationsgeschwindigkeit"
+        case .animationSpeedFast: return "Schnell"
+        case .animationSpeedNormal: return "Normal"
+        case .animationSpeedSlow: return "Langsam"
+        case .privacy: return "Datenschutz"
+        case .collectUsageData: return "Nutzungsdaten sammeln"
+        case .locationAccess: return "Standortzugriff"
         }
     }
     
@@ -236,6 +329,37 @@ enum LocalizationKey {
         case .moonIllumination: return "Освещённость"
         case .moonRise: return "Восход Луны"
         case .moonSet: return "Заход Луны"
+        case .settings: return "Настройки"
+        case .language: return "Язык"
+        case .units: return "Единицы измерения"
+        case .useMetric: return "Использовать метрическую систему"
+        case .notifications: return "Уведомления"
+        case .enableNotifications: return "Включить уведомления"
+        case .updateSettings: return "Настройки обновления"
+        case .updateInterval: return "Интервал обновления"
+        case .minutes: return "минут"
+        case .about: return "О приложении"
+        case .version: return "Версия"
+        case .done: return "Готово"
+        case .theme: return "Тема"
+        case .themeAuto: return "Автоматическая"
+        case .themeLight: return "Светлая"
+        case .themeDark: return "Тёмная"
+        case .themeSystem: return "Системная"
+        case .selectTheme: return "Выберите тему"
+        case .dataDisplay: return "Отображение данных"
+        case .showMoonDetails: return "Показывать детали Луны"
+        case .showWindDetails: return "Показывать детали ветра"
+        case .showPressureDetails: return "Показывать детали давления"
+        case .animations: return "Анимации"
+        case .enableAnimations: return "Включить анимации"
+        case .animationSpeed: return "Скорость анимации"
+        case .animationSpeedFast: return "Быстро"
+        case .animationSpeedNormal: return "Нормально"
+        case .animationSpeedSlow: return "Медленно"
+        case .privacy: return "Конфиденциальность"
+        case .collectUsageData: return "Сбор данных об использовании"
+        case .locationAccess: return "Доступ к местоположению"
         }
     }
     
@@ -283,6 +407,37 @@ enum LocalizationKey {
         case .moonIllumination: return "Osvetljenost"
         case .moonRise: return "Izlazak Meseca"
         case .moonSet: return "Zalazak Meseca"
+        case .settings: return "Podešavanja"
+        case .language: return "Jezik"
+        case .units: return "Jedinice"
+        case .useMetric: return "Koristi metrički sistem"
+        case .notifications: return "Obaveštenja"
+        case .enableNotifications: return "Uključi obaveštenja"
+        case .updateSettings: return "Podešavanja ažuriranja"
+        case .updateInterval: return "Interval ažuriranja"
+        case .minutes: return "minuta"
+        case .about: return "O aplikaciji"
+        case .version: return "Verzija"
+        case .done: return "Gotovo"
+        case .theme: return "Tema"
+        case .themeAuto: return "Automatska"
+        case .themeLight: return "Svetla"
+        case .themeDark: return "Tamna"
+        case .themeSystem: return "Sistemska"
+        case .selectTheme: return "Izaberite temu"
+        case .dataDisplay: return "Prikaz podataka"
+        case .showMoonDetails: return "Prikazati detalje o mesecu"
+        case .showWindDetails: return "Prikazati detalje o vetru"
+        case .showPressureDetails: return "Prikazati detalje o pritisku"
+        case .animations: return "Animacije"
+        case .enableAnimations: return "Uključiti animacije"
+        case .animationSpeed: return "Brzina animacija"
+        case .animationSpeedFast: return "Brzo"
+        case .animationSpeedNormal: return "Normalno"
+        case .animationSpeedSlow: return "Sporo"
+        case .privacy: return "Privatnost"
+        case .collectUsageData: return "Prikupljanje podataka o korišćenju"
+        case .locationAccess: return "Pristup lokaciji"
         }
     }
 } 
