@@ -385,6 +385,106 @@ private struct WeatherInfoView: View {
         Color.weatherThemeColor(for: weatherCondition)
     }
     
+    private func moonPhase(for date: Date) -> String {
+        // Jednostavna aproksimacija faze meseca na osnovu datuma
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        let day = components.day ?? 1
+        
+        // Mesec ima približno 29.5 dana, pa delimo na 8 faza
+        let phase = (day % 30) / 4
+        
+        switch phase {
+        case 0: return "moon.new"
+        case 1: return "moon.waxingcrescent"
+        case 2: return "moon.firstquarter"
+        case 3: return "moon.waxinggibbous"
+        case 4: return "moon.full"
+        case 5: return "moon.waninggibbous"
+        case 6: return "moon.lastquarter"
+        case 7: return "moon.waningcrescent"
+        default: return "moon"
+        }
+    }
+    
+    private func moonPhaseName(for date: Date) -> String {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        let day = components.day ?? 1
+        
+        // Mesec ima približno 29.5 dana, pa delimo na 8 faza
+        let phase = (day % 30) / 4
+        
+        switch phase {
+        case 0: return localizationManager.localizedString(.newMoon)
+        case 1: return localizationManager.localizedString(.waxingCrescent)
+        case 2: return localizationManager.localizedString(.firstQuarter)
+        case 3: return localizationManager.localizedString(.waxingGibbous)
+        case 4: return localizationManager.localizedString(.fullMoon)
+        case 5: return localizationManager.localizedString(.waningGibbous)
+        case 6: return localizationManager.localizedString(.lastQuarter)
+        case 7: return localizationManager.localizedString(.waningCrescent)
+        default: return localizationManager.localizedString(.moon)
+        }
+    }
+    
+    private func moonIllumination(for date: Date) -> Int {
+        // Jednostavna aproksimacija osvetljenosti meseca na osnovu datuma
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        let day = components.day ?? 1
+        
+        // Mesec ima približno 29.5 dana, pa delimo na 8 faza
+        let phase = (day % 30) / 4
+        
+        // Izračunavanje procenata osvetljenosti za svaku fazu
+        switch phase {
+        case 0: return 0  // Mladi mesec
+        case 1: return 25 // Rastući srp
+        case 2: return 50 // Prva četvrt
+        case 3: return 75 // Rastući mesec
+        case 4: return 100 // Pun mesec
+        case 5: return 75 // Opadajući mesec
+        case 6: return 50 // Poslednja četvrt
+        case 7: return 25 // Opadajući srp
+        default: return 50
+        }
+    }
+    
+    private func moonRiseSet(for date: Date) -> (rise: String, set: String) {
+        // Jednostavna aproksimacija vremena izlaska i zalaska meseca
+        // U stvarnosti, ovo zavisi od geografske lokacije i datuma
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        let day = components.day ?? 1
+        
+        // Mesec ima približno 29.5 dana, pa delimo na 8 faza
+        let phase = (day % 30) / 4
+        
+        // Približna vremena izlaska i zalaska meseca za različite faze
+        // Ovo su samo približne vrednosti za ilustraciju
+        switch phase {
+        case 0: // Mladi mesec
+            return ("18:00", "06:00")
+        case 1: // Rastući srp
+            return ("19:00", "07:00")
+        case 2: // Prva četvrt
+            return ("20:00", "08:00")
+        case 3: // Rastući mesec
+            return ("21:00", "09:00")
+        case 4: // Pun mesec
+            return ("22:00", "10:00")
+        case 5: // Opadajući mesec
+            return ("23:00", "11:00")
+        case 6: // Poslednja četvrt
+            return ("00:00", "12:00")
+        case 7: // Opadajući srp
+            return ("01:00", "13:00")
+        default:
+            return ("18:00", "06:00")
+        }
+    }
+    
     private var temperatureSection: some View {
         VStack(spacing: 20) {
             Text("\(Int(weather.main.temp))℃")
@@ -481,6 +581,38 @@ private struct WeatherInfoView: View {
                 value: formatTime(weather.dt),
                 icon: "clock.fill",
                 delay: 0.8,
+                condition: weatherCondition
+            )
+            // Dodajemo fazu meseca
+            WeatherDataRow(
+                title: localizationManager.localizedString(.moonPhase),
+                value: moonPhaseName(for: Date()),
+                icon: moonPhase(for: Date()),
+                delay: 0.9,
+                condition: weatherCondition
+            )
+            // Dodajemo procenat osvetljenosti meseca
+            WeatherDataRow(
+                title: localizationManager.localizedString(.moonIllumination),
+                value: "\(moonIllumination(for: Date()))%",
+                icon: "moon.stars.fill",
+                delay: 1.0,
+                condition: weatherCondition
+            )
+            // Dodajemo vreme izlaska meseca
+            WeatherDataRow(
+                title: localizationManager.localizedString(.moonRise),
+                value: moonRiseSet(for: Date()).rise,
+                icon: "moonrise.fill",
+                delay: 1.1,
+                condition: weatherCondition
+            )
+            // Dodajemo vreme zalaska meseca
+            WeatherDataRow(
+                title: localizationManager.localizedString(.moonSet),
+                value: moonRiseSet(for: Date()).set,
+                icon: "moonset.fill",
+                delay: 1.2,
                 condition: weatherCondition
             )
         }
@@ -603,8 +735,30 @@ private struct TemperatureChartView: View {
         return range == 0 ? 0.5 : (temp - temperatureRange.min) / range
     }
     
+    private func moonPhase(for date: Date) -> String {
+        // Jednostavna aproksimacija faze meseca na osnovu datuma
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        let day = components.day ?? 1
+        
+        // Mesec ima približno 29.5 dana, pa delimo na 8 faza
+        let phase = (day % 30) / 4
+        
+        switch phase {
+        case 0: return "moon.new"
+        case 1: return "moon.waxingcrescent"
+        case 2: return "moon.firstquarter"
+        case 3: return "moon.waxinggibbous"
+        case 4: return "moon.full"
+        case 5: return "moon.waninggibbous"
+        case 6: return "moon.lastquarter"
+        case 7: return "moon.waningcrescent"
+        default: return "moon"
+        }
+    }
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(spacing: 10) {
             Text("24h Temperature")
                 .font(.headline)
                 .foregroundColor(themeManager.currentTheme.text)
@@ -612,6 +766,19 @@ private struct TemperatureChartView: View {
             
             GeometryReader { geometry in
                 ZStack {
+                    // Gradijent pozadina
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    themeManager.currentTheme.cardBackground.opacity(0.5),
+                                    themeManager.currentTheme.cardBackground.opacity(0.2)
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                    
                     // Pozadinska linija
                     Path { path in
                         path.move(to: CGPoint(x: 0, y: geometry.size.height * 0.6))
@@ -645,21 +812,30 @@ private struct TemperatureChartView: View {
                         style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round)
                     )
                     
-                    // Tačke sa temperaturama
+                    // Tačke sa temperaturama i fazom meseca
                     HStack(spacing: 0) {
                         ForEach(next24Hours.indices, id: \.self) { index in
                             let item = next24Hours[index]
                             let y = geometry.size.height * 0.6 * (1 - CGFloat(normalizedTemperature(item.main.temp)))
                             
                             VStack(spacing: 1) {
+                                // Faza meseca
+                                Image(systemName: moonPhase(for: item.date))
+                                    .font(.system(size: 12))
+                                    .foregroundColor(themeManager.currentTheme.text.opacity(0.8))
+                                    .padding(.bottom, 2)
+                                
+                                // Temperatura
                                 Text("\(Int(item.main.temp))°")
                                     .font(.system(size: 10))
                                     .foregroundColor(themeManager.currentTheme.text)
                                 
+                                // Tačka na liniji
                                 Circle()
                                     .fill(themeManager.currentTheme.accent)
                                     .frame(width: 4, height: 4)
                                 
+                                // Vreme
                                 Text(item.time)
                                     .font(.system(size: 8))
                                     .foregroundColor(themeManager.currentTheme.text.opacity(0.8))
@@ -775,6 +951,8 @@ private struct ForecastItemView: View {
                 return "cloud.fog.fill"
             case let c where c.contains("drizzle"):
                 return "cloud.drizzle.fill"
+            case let c where c.contains("wind"):
+                return "wind"
             default:
                 return "cloud.fill"
             }

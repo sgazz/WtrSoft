@@ -71,6 +71,19 @@ enum LocalizationKey {
     case sunday
     case currentTime
     case jsonData
+    case moonPhase
+    case newMoon
+    case waxingCrescent
+    case firstQuarter
+    case waxingGibbous
+    case fullMoon
+    case waningGibbous
+    case lastQuarter
+    case waningCrescent
+    case moon
+    case moonIllumination
+    case moonRise
+    case moonSet
     
     func localizedString(for language: Language) -> String {
         switch language {
@@ -116,6 +129,19 @@ enum LocalizationKey {
         case .sunday: return "Sunday"
         case .currentTime: return "Current time"
         case .jsonData: return "JSON Data"
+        case .moonPhase: return "Moon Phase"
+        case .newMoon: return "New Moon"
+        case .waxingCrescent: return "Waxing Crescent"
+        case .firstQuarter: return "First Quarter"
+        case .waxingGibbous: return "Waxing Gibbous"
+        case .fullMoon: return "Full Moon"
+        case .waningGibbous: return "Waning Gibbous"
+        case .lastQuarter: return "Last Quarter"
+        case .waningCrescent: return "Waning Crescent"
+        case .moon: return "Moon"
+        case .moonIllumination: return "Illumination"
+        case .moonRise: return "Moonrise"
+        case .moonSet: return "Moonset"
         }
     }
     
@@ -150,6 +176,19 @@ enum LocalizationKey {
         case .sunday: return "Sonntag"
         case .currentTime: return "Aktuelle Zeit"
         case .jsonData: return "JSON Daten"
+        case .moonPhase: return "Mondphase"
+        case .newMoon: return "Neumond"
+        case .waxingCrescent: return "Zunehmender Sichelmond"
+        case .firstQuarter: return "Erstes Viertel"
+        case .waxingGibbous: return "Zunehmender Mond"
+        case .fullMoon: return "Vollmond"
+        case .waningGibbous: return "Abnehmender Mond"
+        case .lastQuarter: return "Letztes Viertel"
+        case .waningCrescent: return "Abnehmender Sichelmond"
+        case .moon: return "Mond"
+        case .moonIllumination: return "Beleuchtung"
+        case .moonRise: return "Mondaufgang"
+        case .moonSet: return "Monduntergang"
         }
     }
     
@@ -184,6 +223,19 @@ enum LocalizationKey {
         case .sunday: return "Воскресенье"
         case .currentTime: return "Текущее время"
         case .jsonData: return "JSON Данные"
+        case .moonPhase: return "Фаза Луны"
+        case .newMoon: return "Новолуние"
+        case .waxingCrescent: return "Растущий серп"
+        case .firstQuarter: return "Первая четверть"
+        case .waxingGibbous: return "Растущая Луна"
+        case .fullMoon: return "Полнолуние"
+        case .waningGibbous: return "Убывающая Луна"
+        case .lastQuarter: return "Последняя четверть"
+        case .waningCrescent: return "Убывающий серп"
+        case .moon: return "Луна"
+        case .moonIllumination: return "Освещённость"
+        case .moonRise: return "Восход Луны"
+        case .moonSet: return "Заход Луны"
         }
     }
     
@@ -218,6 +270,19 @@ enum LocalizationKey {
         case .sunday: return "Nedelja"
         case .currentTime: return "Trenutno vreme"
         case .jsonData: return "JSON Podaci"
+        case .moonPhase: return "Faza Meseca"
+        case .newMoon: return "Mladi Mesec"
+        case .waxingCrescent: return "Rastući Srp"
+        case .firstQuarter: return "Prva Četvrt"
+        case .waxingGibbous: return "Rastući Mesec"
+        case .fullMoon: return "Pun Mesec"
+        case .waningGibbous: return "Opadajući Mesec"
+        case .lastQuarter: return "Poslednja Četvrt"
+        case .waningCrescent: return "Opadajući Srp"
+        case .moon: return "Mesec"
+        case .moonIllumination: return "Osvetljenost"
+        case .moonRise: return "Izlazak Meseca"
+        case .moonSet: return "Zalazak Meseca"
         }
     }
 } 
