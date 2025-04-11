@@ -95,13 +95,10 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     func getCurrentLocalTime(for timezone: Int) -> String {
         let date = Date()
-        let utcTimeInterval = date.timeIntervalSince1970
-        let localTimeInterval = utcTimeInterval + Double(timezone)
-        let localDate = Date(timeIntervalSince1970: localTimeInterval)
-        
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
-        return formatter.string(from: localDate)
+        formatter.timeZone = TimeZone(secondsFromGMT: timezone)
+        return formatter.string(from: date)
     }
 }
 

@@ -386,24 +386,20 @@ private struct WeatherInfoView: View {
     }
     
     private func moonPhase(for date: Date) -> String {
-        // Jednostavna aproksimacija faze meseca na osnovu datuma
         let calendar = Calendar.current
-        let components = calendar.dateComponents([.year, .month, .day], from: date)
-        let day = components.day ?? 1
+        let day = calendar.component(.day, from: date)
         
-        // Mesec ima približno 29.5 dana, pa delimo na 8 faza
-        let phase = (day % 30) / 4
-        
-        switch phase {
-        case 0: return "moon.new"
-        case 1: return "moon.waxingcrescent"
-        case 2: return "moon.firstquarter"
-        case 3: return "moon.waxinggibbous"
-        case 4: return "moon.full"
-        case 5: return "moon.waninggibbous"
-        case 6: return "moon.lastquarter"
-        case 7: return "moon.waningcrescent"
-        default: return "moon"
+        // Približna aproksimacija faze meseca
+        switch day % 29 {
+        case 0...1: return "moon.stars"
+        case 2...6: return "moon.circle"
+        case 7...8: return "moon.circle.fill"
+        case 9...13: return "moon.circle.fill"
+        case 14...15: return "moon.fill"
+        case 16...20: return "moon.circle.fill"
+        case 21...22: return "moon.circle.fill"
+        case 23...28: return "moon.circle"
+        default: return "moon.stars"
         }
     }
     
@@ -535,9 +531,9 @@ private struct WeatherInfoView: View {
                 condition: weatherCondition
             )
             WeatherDataRow(
-                title: localizationManager.localizedString(.humidity),
-                value: "\(weather.main.humidity)%",
-                icon: "humidity.fill",
+                title: localizationManager.localizedString(.lastUpdated),
+                value: formatTime(weather.dt),
+                icon: "clock.fill",
                 delay: 0.2,
                 condition: weatherCondition
             )
@@ -549,37 +545,37 @@ private struct WeatherInfoView: View {
                 condition: weatherCondition
             )
             WeatherDataRow(
+                title: localizationManager.localizedString(.humidity),
+                value: "\(weather.main.humidity)%",
+                icon: "humidity.fill",
+                delay: 0.4,
+                condition: weatherCondition
+            )
+            WeatherDataRow(
                 title: localizationManager.localizedString(.pressure),
                 value: "\(weather.main.pressure) hPa",
                 icon: "gauge.medium",
-                delay: 0.4,
+                delay: 0.5,
                 condition: weatherCondition
             )
             WeatherDataRow(
                 title: localizationManager.localizedString(.visibility),
                 value: "\(weather.visibility / 1000) km",
                 icon: "eye.fill",
-                delay: 0.5,
+                delay: 0.6,
                 condition: weatherCondition
             )
             WeatherDataRow(
                 title: localizationManager.localizedString(.sunrise),
                 value: formatTime(weather.sys.sunrise),
                 icon: "sunrise.fill",
-                delay: 0.6,
+                delay: 0.7,
                 condition: weatherCondition
             )
             WeatherDataRow(
                 title: localizationManager.localizedString(.sunset),
                 value: formatTime(weather.sys.sunset),
                 icon: "sunset.fill",
-                delay: 0.7,
-                condition: weatherCondition
-            )
-            WeatherDataRow(
-                title: localizationManager.localizedString(.lastUpdated),
-                value: formatTime(weather.dt),
-                icon: "clock.fill",
                 delay: 0.8,
                 condition: weatherCondition
             )
@@ -736,29 +732,25 @@ private struct TemperatureChartView: View {
     }
     
     private func moonPhase(for date: Date) -> String {
-        // Jednostavna aproksimacija faze meseca na osnovu datuma
         let calendar = Calendar.current
-        let components = calendar.dateComponents([.year, .month, .day], from: date)
-        let day = components.day ?? 1
+        let day = calendar.component(.day, from: date)
         
-        // Mesec ima približno 29.5 dana, pa delimo na 8 faza
-        let phase = (day % 30) / 4
-        
-        switch phase {
-        case 0: return "moon.new"
-        case 1: return "moon.waxingcrescent"
-        case 2: return "moon.firstquarter"
-        case 3: return "moon.waxinggibbous"
-        case 4: return "moon.full"
-        case 5: return "moon.waninggibbous"
-        case 6: return "moon.lastquarter"
-        case 7: return "moon.waningcrescent"
-        default: return "moon"
+        // Približna aproksimacija faze meseca
+        switch day % 29 {
+        case 0...1: return "moon.stars"
+        case 2...6: return "moon.circle"
+        case 7...8: return "moon.circle.fill"
+        case 9...13: return "moon.circle.fill"
+        case 14...15: return "moon.fill"
+        case 16...20: return "moon.circle.fill"
+        case 21...22: return "moon.circle.fill"
+        case 23...28: return "moon.circle"
+        default: return "moon.stars"
         }
     }
     
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 8) {
             Text("24h Temperature")
                 .font(.headline)
                 .foregroundColor(themeManager.currentTheme.text)
@@ -819,12 +811,6 @@ private struct TemperatureChartView: View {
                             let y = geometry.size.height * 0.6 * (1 - CGFloat(normalizedTemperature(item.main.temp)))
                             
                             VStack(spacing: 1) {
-                                // Faza meseca
-                                Image(systemName: moonPhase(for: item.date))
-                                    .font(.system(size: 12))
-                                    .foregroundColor(themeManager.currentTheme.text.opacity(0.8))
-                                    .padding(.bottom, 2)
-                                
                                 // Temperatura
                                 Text("\(Int(item.main.temp))°")
                                     .font(.system(size: 10))
@@ -848,10 +834,10 @@ private struct TemperatureChartView: View {
                     }
                 }
             }
-            .frame(height: 80)
+            .frame(height: 70)
             .padding(.horizontal, 5)
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 6)
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .fill(themeManager.currentTheme.cardBackground.opacity(0.5))
@@ -874,7 +860,7 @@ private struct ForecastView: View {
     @EnvironmentObject private var themeManager: ThemeManager
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 25) {
+        VStack(alignment: .leading, spacing: 15) {
             Text(localizationManager.localizedString(.forecast))
                 .font(.title2)
                 .fontWeight(.bold)
@@ -884,7 +870,7 @@ private struct ForecastView: View {
                 .offset(y: isAppeared ? 0 : 20)
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 20) {
+                HStack(spacing: 15) {
                     ForEach(forecast.list.indices, id: \.self) { index in
                         let item = forecast.list[index]
                         ForecastItemView(item: item,
@@ -899,8 +885,9 @@ private struct ForecastView: View {
                 }
                 .padding(.horizontal)
             }
+            .frame(height: selectedItem != nil ? 300 : 200)
         }
-        .padding(.vertical, 25)
+        .padding(.vertical, 15)
         .background(
             RoundedRectangle(cornerRadius: 30)
                 .fill(themeManager.currentTheme.cardBackground)
@@ -983,13 +970,13 @@ private struct ForecastItemView: View {
     }
     
     var body: some View {
-        VStack(spacing: 15) {
+        VStack(spacing: 12) {
             Text(formatDayOfWeek(item.dayOfWeek))
                 .font(.headline)
                 .foregroundColor(themeManager.currentTheme.text)
             
             Image(systemName: weatherIcon)
-                .font(.system(size: 40))
+                .font(.system(size: 35))
                 .foregroundStyle(iconColor.gradient)
                 .shadow(color: iconColor.opacity(0.3), radius: 5)
             
@@ -1003,17 +990,18 @@ private struct ForecastItemView: View {
                 .foregroundColor(themeManager.currentTheme.text.opacity(0.8))
             
             if isSelected {
-                VStack(spacing: 10) {
+                VStack(spacing: 12) {
                     WeatherDetailRow(icon: "thermometer.low", value: "\(Int(item.main.temp_min))℃")
                     WeatherDetailRow(icon: "thermometer.high", value: "\(Int(item.main.temp_max))℃")
                     WeatherDetailRow(icon: "humidity.fill", value: "\(item.main.humidity)%")
                     WeatherDetailRow(icon: "wind", value: "\(Int(item.wind.speed))m/s")
                 }
+                .padding(.top, 8)
                 .transition(.scale.combined(with: .opacity))
             }
         }
         .frame(width: 110)
-        .padding(.vertical, 20)
+        .padding(.vertical, isSelected ? 20 : 15)
         .background(
             RoundedRectangle(cornerRadius: 25)
                 .fill(themeManager.currentTheme.cardBackground)
