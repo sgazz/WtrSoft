@@ -505,19 +505,10 @@ private struct WeatherInfoView: View {
                 }
                 .scaleEffect(isAppeared ? 1 : 0.8)
                 
-                if let icon = weather.weather.first?.icon {
-                    AsyncImage(url: URL(string: "https://openweathermap.org/img/wn/\(icon)@2x.png")) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 120, height: 120)
-                            .shadow(color: .white.opacity(0.2), radius: 10)
-                            .scaleEffect(isAppeared ? 1 : 0.5)
-                            .rotationEffect(.degrees(isAppeared ? 0 : 180))
-                    } placeholder: {
-                        ProgressView()
-                            .tint(.white)
-                    }
+                if let weatherCondition = weather.weather.first?.description {
+                    AnimatedWeatherIcon(condition: weatherCondition)
+                        .scaleEffect(isAppeared ? 1 : 0.5)
+                        .rotationEffect(.degrees(isAppeared ? 0 : 180))
                 }
             }
             
@@ -761,24 +752,68 @@ private struct ForecastItemView: View {
     @State private var isAppeared = false
     @EnvironmentObject private var themeManager: ThemeManager
     
+    private var weatherIcon: String {
+        if let condition = item.weather.first?.description {
+            switch condition.lowercased() {
+            case let c where c.contains("clear sky"):
+                return "sun.max.fill"
+            case let c where c.contains("few clouds"):
+                return "cloud.sun.fill"
+            case let c where c.contains("scattered clouds"):
+                return "cloud.fill"
+            case let c where c.contains("broken clouds"):
+                return "smoke.fill"
+            case let c where c.contains("shower rain"):
+                return "cloud.heavyrain.fill"
+            case let c where c.contains("rain"):
+                return "cloud.rain.fill"
+            case let c where c.contains("thunderstorm"):
+                return "cloud.bolt.rain.fill"
+            case let c where c.contains("snow"):
+                return "snow"
+            case let c where c.contains("mist") || c.contains("fog"):
+                return "cloud.fog.fill"
+            case let c where c.contains("drizzle"):
+                return "cloud.drizzle.fill"
+            default:
+                return "cloud.fill"
+            }
+        }
+        return "cloud.fill"
+    }
+    
+    private var iconColor: Color {
+        if let condition = item.weather.first?.description {
+            switch condition.lowercased() {
+            case let c where c.contains("clear sky"):
+                return .yellow
+            case let c where c.contains("clouds"):
+                return .white
+            case let c where c.contains("rain"):
+                return .blue
+            case let c where c.contains("thunderstorm"):
+                return .purple
+            case let c where c.contains("snow"):
+                return .white
+            case let c where c.contains("mist") || c.contains("fog"):
+                return .white.opacity(0.8)
+            default:
+                return .white
+            }
+        }
+        return .white
+    }
+    
     var body: some View {
         VStack(spacing: 15) {
             Text(formatDayOfWeek(item.dayOfWeek))
                 .font(.headline)
                 .foregroundColor(themeManager.currentTheme.text)
             
-            if let icon = item.weather.first?.icon {
-                AsyncImage(url: URL(string: "https://openweathermap.org/img/wn/\(icon)@2x.png")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 60, height: 60)
-                        .shadow(color: .white.opacity(0.2), radius: 5)
-                } placeholder: {
-                    ProgressView()
-                        .tint(.white)
-                }
-            }
+            Image(systemName: weatherIcon)
+                .font(.system(size: 40))
+                .foregroundStyle(iconColor.gradient)
+                .shadow(color: iconColor.opacity(0.3), radius: 5)
             
             Text("\(Int(item.main.temp))℃")
                 .font(.system(.title2, design: .rounded))
@@ -1049,5 +1084,86 @@ extension Color {
 extension WeatherResponse: Equatable {
     static func == (lhs: WeatherResponse, rhs: WeatherResponse) -> Bool {
         lhs.name == rhs.name && lhs.dt == rhs.dt
+    }
+}
+
+private struct AnimatedWeatherIcon: View {
+    let condition: String
+    @State private var isAnimating = false
+    @State private var isHovering = false
+    @EnvironmentObject private var themeManager: ThemeManager
+    
+    private var systemImage: String {
+        switch condition.lowercased() {
+        case let c where c.contains("clear sky"):
+            return "sun.max.fill"
+        case let c where c.contains("few clouds"):
+            return "cloud.sun.fill"
+        case let c where c.contains("scattered clouds"):
+            return "cloud.fill"
+        case let c where c.contains("broken clouds"):
+            return "smoke.fill"
+        case let c where c.contains("shower rain"):
+            return "cloud.heavyrain.fill"
+        case let c where c.contains("rain"):
+            return "cloud.rain.fill"
+        case let c where c.contains("thunderstorm"):
+            return "cloud.bolt.rain.fill"
+        case let c where c.contains("snow"):
+            return "snow"
+        case let c where c.contains("mist") || c.contains("fog"):
+            return "cloud.fog.fill"
+        case let c where c.contains("drizzle"):
+            return "cloud.drizzle.fill"
+        default:
+            return "cloud.fill"
+        }
+    }
+    
+    private var iconColor: Color {
+        switch condition.lowercased() {
+        case let c where c.contains("clear sky"):
+            return .yellow
+        case let c where c.contains("clouds"):
+            return .white
+        case let c where c.contains("rain"):
+            return .blue
+        case let c where c.contains("thunderstorm"):
+            return .purple
+        case let c where c.contains("snow"):
+            return .white
+        case let c where c.contains("mist") || c.contains("fog"):
+            return .white.opacity(0.8)
+        default:
+            return .white
+        }
+    }
+    
+    private var animation: Animation {
+        switch condition.lowercased() {
+        case let c where c.contains("clear sky"):
+            return .easeInOut(duration: 8).repeatForever(autoreverses: true)
+        case let c where c.contains("clouds"):
+            return .easeInOut(duration: 10).repeatForever(autoreverses: true)
+        case let c where c.contains("rain"):
+            return .easeInOut(duration: 8).repeatForever(autoreverses: true)
+        case let c where c.contains("thunderstorm"):
+            return .easeInOut(duration: 9).repeatForever(autoreverses: true)
+        default:
+            return .easeInOut(duration: 8).repeatForever(autoreverses: true)
+        }
+    }
+    
+    var body: some View {
+        Image(systemName: systemImage)
+            .font(.system(size: 70))
+            .foregroundStyle(iconColor.gradient)
+            .offset(y: isHovering ? -5 : 5)
+            .shadow(color: iconColor.opacity(0.3), radius: 10, x: 0, y: 5)
+            .onAppear {
+                withAnimation(animation) {
+                    isHovering = true
+                }
+            }
     }
 } 
