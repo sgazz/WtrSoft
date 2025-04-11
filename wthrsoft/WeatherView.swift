@@ -315,6 +315,10 @@ struct WeatherView: View {
                     ))
                 
                 if let forecast = viewModel.forecast {
+                    TemperatureChartView(forecast: forecast)
+                        .environmentObject(themeManager)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    
                     ForecastView(forecast: forecast)
                         .environmentObject(themeManager)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -579,6 +583,116 @@ private struct TemperatureInfo: View {
         .offset(y: isAppeared ? 0 : 20)
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(delay)) {
+                isAppeared = true
+            }
+        }
+    }
+}
+
+private struct TemperatureChartView: View {
+    let forecast: ForecastResponse
+    @EnvironmentObject private var themeManager: ThemeManager
+    @State private var isAppeared = false
+    
+    private var next24Hours: [ForecastItem] {
+        let now = Date()
+        return forecast.list
+            .filter { $0.date > now }
+            .prefix(8)
+            .map { $0 }
+    }
+    
+    private var temperatureRange: (min: Double, max: Double) {
+        let temps = next24Hours.map { $0.main.temp }
+        return (temps.min() ?? 0, temps.max() ?? 0)
+    }
+    
+    private func normalizedTemperature(_ temp: Double) -> Double {
+        let range = temperatureRange.max - temperatureRange.min
+        return range == 0 ? 0.5 : (temp - temperatureRange.min) / range
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text("24h Temperature")
+                .font(.headline)
+                .foregroundColor(themeManager.currentTheme.text)
+                .padding(.horizontal)
+            
+            GeometryReader { geometry in
+                ZStack {
+                    // Pozadinska linija
+                    Path { path in
+                        path.move(to: CGPoint(x: 0, y: geometry.size.height * 0.6))
+                        path.addLine(to: CGPoint(x: geometry.size.width, y: geometry.size.height * 0.6))
+                    }
+                    .stroke(themeManager.currentTheme.text.opacity(0.2), lineWidth: 1)
+                    
+                    // Temperaturna linija
+                    Path { path in
+                        let points = next24Hours.enumerated().map { index, item in
+                            CGPoint(
+                                x: CGFloat(index) * (geometry.size.width / CGFloat(next24Hours.count - 1)),
+                                y: geometry.size.height * 0.6 * (1 - CGFloat(normalizedTemperature(item.main.temp)))
+                            )
+                        }
+                        
+                        path.move(to: points[0])
+                        for point in points.dropFirst() {
+                            path.addLine(to: point)
+                        }
+                    }
+                    .stroke(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                themeManager.currentTheme.accent,
+                                themeManager.currentTheme.secondary
+                            ]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        ),
+                        style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round)
+                    )
+                    
+                    // Tačke sa temperaturama
+                    HStack(spacing: 0) {
+                        ForEach(next24Hours.indices, id: \.self) { index in
+                            let item = next24Hours[index]
+                            let y = geometry.size.height * 0.6 * (1 - CGFloat(normalizedTemperature(item.main.temp)))
+                            
+                            VStack(spacing: 1) {
+                                Text("\(Int(item.main.temp))°")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(themeManager.currentTheme.text)
+                                
+                                Circle()
+                                    .fill(themeManager.currentTheme.accent)
+                                    .frame(width: 4, height: 4)
+                                
+                                Text(item.time)
+                                    .font(.system(size: 8))
+                                    .foregroundColor(themeManager.currentTheme.text.opacity(0.8))
+                            }
+                            .frame(width: geometry.size.width / CGFloat(next24Hours.count))
+                            .offset(y: y - 15)
+                            .opacity(isAppeared ? 1 : 0)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1 * Double(index)), value: isAppeared)
+                        }
+                    }
+                }
+            }
+            .frame(height: 80)
+            .padding(.horizontal, 5)
+        }
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(themeManager.currentTheme.cardBackground.opacity(0.5))
+                .shadow(color: Color.black.opacity(0.1), radius: 10)
+        )
+        .padding(.horizontal)
+        .onAppear {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 isAppeared = true
             }
         }
