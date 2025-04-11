@@ -110,7 +110,12 @@ struct SettingsView: View {
         .background(
             RoundedRectangle(cornerRadius: 15)
                 .fill(isDarkMode ? Color(red: 0.15, green: 0.15, blue: 0.17) : .white)
-                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+                .shadow(
+                    color: isDarkMode ? Color.black.opacity(0.3) : Color.black.opacity(0.1),
+                    radius: isDarkMode ? 8 : 5,
+                    x: 0,
+                    y: isDarkMode ? 4 : 2
+                )
         )
     }
     

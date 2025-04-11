@@ -27,6 +27,7 @@ struct ThemeColors {
     let accent: Color
     let secondary: Color
     let cardBackground: Color
+    let cardShadow: Color
     
     static func current(timezone: TimeZone? = nil) -> ThemeColors {
         let calendar = Calendar.current
@@ -51,9 +52,9 @@ struct ThemeColors {
         ThemeColors(
             background: LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(hex: "FFB6C1").opacity(0.8),  // Svetlo ružičasta
-                    Color(hex: "FFA07A").opacity(0.6),  // Svetlo losos
-                    Color(hex: "FFE4E1").opacity(0.4)   // Svetlo ružičasta
+                    Color(hex: "FFB6C1").opacity(0.8),
+                    Color(hex: "FFA07A").opacity(0.6),
+                    Color(hex: "FFE4E1").opacity(0.4)
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -61,7 +62,8 @@ struct ThemeColors {
             text: Color(hex: "4A4A4A"),
             accent: Color(hex: "FF69B4"),
             secondary: Color(hex: "FFB6C1"),
-            cardBackground: Color.white.opacity(0.2)
+            cardBackground: Color.white.opacity(0.2),
+            cardShadow: Color.black.opacity(0.1)
         )
     }
     
@@ -69,9 +71,9 @@ struct ThemeColors {
         ThemeColors(
             background: LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(hex: "87CEEB").opacity(0.8),  // Nebo plava
-                    Color(hex: "B0E0E6").opacity(0.6),  // Prašina plava
-                    Color(hex: "F0F8FF").opacity(0.4)   // Alice plava
+                    Color(hex: "87CEEB").opacity(0.8),
+                    Color(hex: "B0E0E6").opacity(0.6),
+                    Color(hex: "F0F8FF").opacity(0.4)
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -79,7 +81,8 @@ struct ThemeColors {
             text: Color(hex: "2F4F4F"),
             accent: Color(hex: "1E90FF"),
             secondary: Color(hex: "87CEEB"),
-            cardBackground: Color.white.opacity(0.2)
+            cardBackground: Color.white.opacity(0.2),
+            cardShadow: Color.black.opacity(0.1)
         )
     }
     
@@ -87,9 +90,9 @@ struct ThemeColors {
         ThemeColors(
             background: LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(hex: "FFD700").opacity(0.8),  // Zlatno žuta
-                    Color(hex: "FFA500").opacity(0.6),  // Narandžasta
-                    Color(hex: "FFE4B5").opacity(0.4)   // Mokej
+                    Color(hex: "FFD700").opacity(0.8),
+                    Color(hex: "FFA500").opacity(0.6),
+                    Color(hex: "FFE4B5").opacity(0.4)
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -97,7 +100,8 @@ struct ThemeColors {
             text: Color(hex: "8B4513"),
             accent: Color(hex: "FFD700"),
             secondary: Color(hex: "FFA500"),
-            cardBackground: Color.white.opacity(0.2)
+            cardBackground: Color.white.opacity(0.2),
+            cardShadow: Color.black.opacity(0.15)
         )
     }
     
@@ -105,9 +109,9 @@ struct ThemeColors {
         ThemeColors(
             background: LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(hex: "FF8C00").opacity(0.8),  // Tamno narandžasta
-                    Color(hex: "FF4500").opacity(0.6),  // Crveno narandžasta
-                    Color(hex: "FFD700").opacity(0.4)   // Zlatno žuta
+                    Color(hex: "FF8C00").opacity(0.8),
+                    Color(hex: "FF4500").opacity(0.6),
+                    Color(hex: "FFD700").opacity(0.4)
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -115,7 +119,8 @@ struct ThemeColors {
             text: Color(hex: "4A4A4A"),
             accent: Color(hex: "FF8C00"),
             secondary: Color(hex: "FF4500"),
-            cardBackground: Color.white.opacity(0.2)
+            cardBackground: Color.white.opacity(0.2),
+            cardShadow: Color.black.opacity(0.2)
         )
     }
     
@@ -123,9 +128,9 @@ struct ThemeColors {
         ThemeColors(
             background: LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(hex: "FF6347").opacity(0.8),  // Tomat
-                    Color(hex: "FF4500").opacity(0.6),  // Crveno narandžasta
-                    Color(hex: "8B0000").opacity(0.4)   // Tamno crvena
+                    Color(hex: "FF6347").opacity(0.8),
+                    Color(hex: "FF4500").opacity(0.6),
+                    Color(hex: "8B0000").opacity(0.4)
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -133,7 +138,8 @@ struct ThemeColors {
             text: Color(hex: "FFFFFF"),
             accent: Color(hex: "FF6347"),
             secondary: Color(hex: "FF4500"),
-            cardBackground: Color.white.opacity(0.15)
+            cardBackground: Color.white.opacity(0.15),
+            cardShadow: Color.black.opacity(0.25)
         )
     }
     
@@ -141,9 +147,9 @@ struct ThemeColors {
         ThemeColors(
             background: LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(hex: "191970").opacity(0.8),  // Ponoćno plava
-                    Color(hex: "000080").opacity(0.6),  // Mornarsko plava
-                    Color(hex: "000000").opacity(0.4)   // Crna
+                    Color(hex: "191970").opacity(0.8),
+                    Color(hex: "000080").opacity(0.6),
+                    Color(hex: "000000").opacity(0.4)
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -151,7 +157,8 @@ struct ThemeColors {
             text: Color(hex: "E0FFFF"),
             accent: Color(hex: "87CEEB"),
             secondary: Color(hex: "B0C4DE"),
-            cardBackground: Color.white.opacity(0.1)
+            cardBackground: Color.white.opacity(0.1),
+            cardShadow: Color.black.opacity(0.3)
         )
     }
 }
@@ -239,7 +246,8 @@ extension ThemeColors {
             text: Color(hex: "000000"),
             accent: Color(hex: "007AFF"),
             secondary: Color(hex: "5856D6"),
-            cardBackground: Color.white.opacity(0.8)
+            cardBackground: Color.white.opacity(0.15),
+            cardShadow: Color.black.opacity(0.05)
         )
     }
     
@@ -257,7 +265,8 @@ extension ThemeColors {
             text: Color(hex: "FFFFFF"),
             accent: Color(hex: "0A84FF"),
             secondary: Color(hex: "5E5CE6"),
-            cardBackground: Color.black.opacity(0.5)
+            cardBackground: Color.black.opacity(0.15),
+            cardShadow: Color.black.opacity(0.1)
         )
     }
     
@@ -314,7 +323,7 @@ struct WeatherView: View {
                         .background(
                             Circle()
                                 .fill(Color.white.opacity(0.2))
-                                .shadow(color: Color.black.opacity(0.1), radius: 5)
+                                .shadow(color: themeManager.currentTheme.cardShadow, radius: 8, x: 0, y: 4)
                         )
                 }
             }
@@ -344,7 +353,7 @@ struct WeatherView: View {
                             RoundedRectangle(cornerRadius: 20)
                                 .stroke(Color.white.opacity(0.5), lineWidth: 1)
                         )
-                        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+                        .shadow(color: themeManager.currentTheme.cardShadow, radius: 10, x: 0, y: 5)
                 )
                 
                 Button(action: {
@@ -365,7 +374,7 @@ struct WeatherView: View {
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 ))
-                                .shadow(color: Color(hex: "1E90FF").opacity(0.3), radius: 10, x: 0, y: 5)
+                                .shadow(color: themeManager.currentTheme.cardShadow, radius: 10, x: 0, y: 5)
                         )
                 }
                 .scaleEffect(isSearching ? 1.05 : 1.0)
@@ -381,6 +390,13 @@ struct WeatherView: View {
             if let weather = viewModel.weather {
                 WeatherInfoView(weather: weather)
                     .environmentObject(themeManager)
+                    .padding(30)
+                    .background(
+                        RoundedRectangle(cornerRadius: 30)
+                            .fill(themeManager.currentTheme.cardBackground)
+                            .shadow(color: themeManager.currentTheme.cardShadow, radius: 15)
+                    )
+                    .padding(.horizontal)
                     .transition(.asymmetric(
                         insertion: .scale.combined(with: .opacity),
                         removal: .scale.combined(with: .opacity)
@@ -388,11 +404,24 @@ struct WeatherView: View {
                 
                 if let forecast = viewModel.forecast {
                     TemperatureChartView(forecast: forecast)
-                        .environmentObject(themeManager)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(themeManager.currentTheme.cardBackground)
+                                .shadow(color: themeManager.currentTheme.cardShadow, radius: 10)
+                        )
+                        .padding(.horizontal)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                     
                     ForecastView(forecast: forecast)
                         .environmentObject(themeManager)
+                        .padding(.vertical, 15)
+                        .background(
+                            RoundedRectangle(cornerRadius: 30)
+                                .fill(themeManager.currentTheme.cardBackground)
+                                .shadow(color: themeManager.currentTheme.cardShadow, radius: 15)
+                        )
+                        .padding(.horizontal)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             } else {
@@ -571,12 +600,13 @@ private struct WeatherInfoView: View {
     }
     
     private var temperatureSection: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 25) {
             Text("\(Int(weather.main.temp))℃")
                 .font(.system(size: 80, weight: .bold, design: .rounded))
-                .foregroundColor(themeColor)
-                .shadow(color: .white.opacity(0.2), radius: 5)
+                .foregroundColor(themeManager.currentTheme.text.opacity(0.95))
+                .shadow(color: themeColor.opacity(0.3), radius: 10)
                 .scaleEffect(isAppeared ? 1 : 0.5)
+                .padding(.top, 10)
             
             HStack(spacing: 30) {
                 TemperatureInfo(
@@ -601,13 +631,15 @@ private struct WeatherInfoView: View {
                     condition: weatherCondition
                 )
             }
+            .padding(.bottom, 10)
         }
     }
     
     private var weatherDetailsGrid: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 25) {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 30) {
             weatherDetailRows
         }
+        .padding(.top, 20)
     }
     
     private var weatherDetailRows: some View {
@@ -734,18 +766,6 @@ private struct WeatherInfoView: View {
             temperatureSection
             weatherDetailsGrid
         }
-        .padding(30)
-        .background(
-            RoundedRectangle(cornerRadius: 30)
-                .fill(themeManager.currentTheme.cardBackground)
-                .background(
-                    RoundedRectangle(cornerRadius: 30)
-                        .fill(themeManager.currentTheme.cardBackground.opacity(0.5))
-                        .blur(radius: 20)
-                )
-                .shadow(color: Color.black.opacity(0.1), radius: 15)
-        )
-        .padding(.horizontal)
         .onAppear {
             updateTime()
             if enableAnimations {
@@ -781,19 +801,23 @@ private struct TemperatureInfo: View {
     let delay: Double
     let condition: String
     @State private var isAppeared = false
+    @EnvironmentObject private var themeManager: ThemeManager
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 10) {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundColor(.white.opacity(0.8))
+                .foregroundColor(themeManager.currentTheme.text.opacity(0.9))
+                .shadow(color: themeManager.currentTheme.text.opacity(0.3), radius: 5)
             Text(title)
                 .font(.caption)
-                .foregroundColor(.white.opacity(0.8))
+                .foregroundColor(themeManager.currentTheme.text.opacity(0.7))
+                .shadow(color: themeManager.currentTheme.text.opacity(0.2), radius: 3)
             Text(value)
                 .font(.title2)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(themeManager.currentTheme.text.opacity(0.95))
+                .shadow(color: themeManager.currentTheme.text.opacity(0.3), radius: 5)
         }
         .frame(minWidth: 80)
         .opacity(isAppeared ? 1 : 0)
@@ -857,19 +881,6 @@ private struct TemperatureChartView: View {
             
             GeometryReader { geometry in
                 ZStack {
-                    // Gradijent pozadina
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    themeManager.currentTheme.cardBackground.opacity(0.5),
-                                    themeManager.currentTheme.cardBackground.opacity(0.2)
-                                ]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                    
                     // Pozadinska linija
                     Path { path in
                         path.move(to: CGPoint(x: 0, y: geometry.size.height * 0.6))
@@ -942,13 +953,6 @@ private struct TemperatureChartView: View {
             .frame(height: 70)
             .padding(.horizontal, 5)
         }
-        .padding(.vertical, 6)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(themeManager.currentTheme.cardBackground.opacity(0.5))
-                .shadow(color: Color.black.opacity(0.1), radius: 10)
-        )
-        .padding(.horizontal)
         .onAppear {
             if enableAnimations {
                 withAnimation(.spring(
@@ -1007,18 +1011,6 @@ private struct ForecastView: View {
             }
             .frame(height: selectedItem != nil ? 300 : 200)
         }
-        .padding(.vertical, 15)
-        .background(
-            RoundedRectangle(cornerRadius: 30)
-                .fill(themeManager.currentTheme.cardBackground)
-                .background(
-                    RoundedRectangle(cornerRadius: 30)
-                        .fill(themeManager.currentTheme.cardBackground.opacity(0.5))
-                        .blur(radius: 20)
-                )
-                .shadow(color: Color.black.opacity(0.1), radius: 15)
-        )
-        .padding(.horizontal)
         .onAppear {
             if enableAnimations {
                 withAnimation(.spring(
@@ -1101,20 +1093,23 @@ private struct ForecastItemView: View {
             Text(formatDayOfWeek(item.dayOfWeek))
                 .font(.headline)
                 .foregroundColor(themeManager.currentTheme.text)
+                .shadow(color: themeManager.currentTheme.text.opacity(0.2), radius: 3)
             
             Image(systemName: weatherIcon)
                 .font(.system(size: 35))
                 .foregroundStyle(iconColor.gradient)
-                .shadow(color: iconColor.opacity(0.3), radius: 5)
+                .shadow(color: iconColor.opacity(0.5), radius: 8)
             
             Text("\(Int(item.main.temp))℃")
                 .font(.system(.title2, design: .rounded))
                 .fontWeight(.bold)
                 .foregroundColor(themeManager.currentTheme.text)
+                .shadow(color: themeManager.currentTheme.text.opacity(0.2), radius: 3)
             
             Text(item.time)
                 .font(.caption)
                 .foregroundColor(themeManager.currentTheme.text.opacity(0.8))
+                .shadow(color: themeManager.currentTheme.text.opacity(0.2), radius: 2)
             
             if isSelected {
                 VStack(spacing: 12) {
@@ -1185,9 +1180,11 @@ private struct WeatherDetailRow: View {
             Image(systemName: icon)
                 .font(.caption)
                 .foregroundColor(themeManager.currentTheme.accent.opacity(0.8))
+                .shadow(color: themeManager.currentTheme.accent.opacity(0.3), radius: 3)
             Text(value)
                 .font(.caption)
                 .foregroundColor(themeManager.currentTheme.text)
+                .shadow(color: themeManager.currentTheme.text.opacity(0.2), radius: 2)
         }
     }
 }
@@ -1205,20 +1202,23 @@ private struct WeatherDataRow: View {
         HStack(spacing: 15) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundColor(themeManager.currentTheme.accent.opacity(0.8))
+                .foregroundColor(themeManager.currentTheme.text.opacity(0.9))
+                .shadow(color: themeManager.currentTheme.accent.opacity(0.3), radius: 5)
                 .frame(width: 30)
             
-            VStack(alignment: .leading, spacing: 5) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(.caption)
-                    .foregroundColor(themeManager.currentTheme.text.opacity(0.8))
+                    .foregroundColor(themeManager.currentTheme.text.opacity(0.7))
+                    .shadow(color: themeManager.currentTheme.text.opacity(0.2), radius: 3)
                 Text(value)
                     .font(.headline)
-                    .foregroundColor(themeManager.currentTheme.text)
+                    .foregroundColor(themeManager.currentTheme.text.opacity(0.9))
+                    .shadow(color: themeManager.currentTheme.text.opacity(0.2), radius: 3)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 5)
+        .padding(.vertical, 8)
         .opacity(isAppeared ? 1 : 0)
         .offset(x: isAppeared ? 0 : -20)
         .onAppear {
@@ -1449,14 +1449,39 @@ private struct AnimatedWeatherIcon: View {
     
     var body: some View {
         Image(systemName: systemImage)
-            .font(.system(size: 70))
+            .font(.system(size: 100))
             .foregroundStyle(iconColor.gradient)
+            .shadow(color: iconColor.opacity(0.5), radius: 15)
             .offset(y: isHovering ? -5 : 5)
-            .shadow(color: iconColor.opacity(0.3), radius: 10, x: 0, y: 5)
+            .padding(.vertical, 20)
             .onAppear {
                 withAnimation(animation) {
                     isHovering = true
                 }
             }
+    }
+}
+
+extension View {
+    func cardStyle(theme: ThemeColors) -> some View {
+        modifier(CardModifier(theme: theme))
+    }
+}
+
+struct CardModifier: ViewModifier {
+    let theme: ThemeColors
+    
+    func body(content: Content) -> some View {
+        content
+            .background(
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(theme.cardBackground)
+                    .shadow(
+                        color: theme.cardShadow,
+                        radius: 10,
+                        x: 0,
+                        y: 5
+                    )
+            )
     }
 } 
