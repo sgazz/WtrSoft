@@ -15,8 +15,11 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var forecast: ForecastResponse?
     @Published var cityName: String = "London"
     @Published var jsonData: String = ""
+    @Published var currentWeather: WeatherResponse?
+    @Published var error: Error?
     private let locationManager = CLLocationManager()
     private let apiKey = Config.apiKey
+    private let baseURL = "https://api.openweathermap.org/data/2.5"
 
     override init() {
         super.init()
@@ -31,11 +34,61 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     func fetchWeather(for city: String) {
-        let urlString = "https://api.openweathermap.org/data/2.5/weather?q=\(city)&appid=\(apiKey)&units=metric"
-        fetchWeatherData(from: urlString)
+        guard let encodedCity = city.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
         
-        let forecastUrlString = "https://api.openweathermap.org/data/2.5/forecast?q=\(city)&appid=\(apiKey)&units=metric"
-        fetchForecastData(from: forecastUrlString)
+        // Fetch current weather
+        let weatherURL = "\(baseURL)/weather?q=\(encodedCity)&appid=\(apiKey)&units=metric"
+        
+        guard let url = URL(string: weatherURL) else { return }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self?.error = error
+                    return
+                }
+                
+                guard let data = data else { return }
+                
+                do {
+                    let decoder = JSONDecoder()
+                    let weather = try decoder.decode(WeatherResponse.self, from: data)
+                    self?.currentWeather = weather
+                    
+                    // Nakon uspešnog učitavanja trenutnog vremena, učitaj prognozu
+                    self?.fetchForecast(for: city)
+                } catch {
+                    self?.error = error
+                }
+            }
+        }.resume()
+    }
+    
+    private func fetchForecast(for city: String) {
+        guard let encodedCity = city.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
+        
+        let forecastURL = "\(baseURL)/forecast?q=\(encodedCity)&appid=\(apiKey)&units=metric"
+        
+        guard let url = URL(string: forecastURL) else { return }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self?.error = error
+                    return
+                }
+                
+                guard let data = data else { return }
+                
+                do {
+                    let decoder = JSONDecoder()
+                    let forecast = try decoder.decode(ForecastResponse.self, from: data)
+                    self?.forecast = forecast
+                } catch {
+                    self?.error = error
+                }
+            }
+        }.resume()
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -95,9 +148,12 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     func getCurrentLocalTime(for timezone: Int) -> String {
         let date = Date()
+        let timeZone = TimeZone(secondsFromGMT: timezone) ?? TimeZone.current
+        
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
-        formatter.timeZone = TimeZone(secondsFromGMT: timezone)
+        formatter.timeZone = timeZone
+        
         return formatter.string(from: date)
     }
 }

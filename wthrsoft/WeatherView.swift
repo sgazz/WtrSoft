@@ -312,233 +312,68 @@ extension ThemeColors {
 
 struct WeatherView: View {
     @StateObject private var viewModel = WeatherViewModel()
-    @StateObject private var localizationManager = LocalizationManager.shared
-    @StateObject private var themeManager = ThemeManager()
-    @State private var showingLanguagePicker = false
-    @State private var showingJSONData = false
     @State private var showingSettings = false
     @State private var isSearching = false
+    @StateObject private var localizationManager = LocalizationManager.shared
+    @EnvironmentObject private var themeManager: ThemeManager
     
-    // Izdvajamo pozadinu u zasebnu computed property
-    private var backgroundView: some View {
+    var body: some View {
         ZStack {
             themeManager.currentTheme.background
                 .ignoresSafeArea()
             
-            // Animirani pozadinski oblaci
-            GeometryReader { geometry in
-                ForEach(0..<3) { index in
-                    Circle()
-                        .fill(themeManager.currentTheme.cardBackground)
-                        .frame(width: geometry.size.width * CGFloat([0.8, 0.6, 0.7][index]))
-                        .offset(x: geometry.size.width * CGFloat([-0.2, 0.4, 0.1][index]),
-                               y: geometry.size.height * CGFloat([-0.2, 0.4, 0.2][index]))
-                        .blur(radius: CGFloat([60, 50, 40][index]))
-                        .modifier(FloatingAnimation(duration: Double([7, 5, 6][index])))
-                }
-            }
-        }
-    }
-    
-    // Izdvajamo kontrole u zasebnu computed property
-    private var controlsView: some View {
-        VStack(spacing: 20) {
-            HStack(spacing: 15) {
-                Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        viewModel.fetchWeather(for: viewModel.cityName)
+            VStack(spacing: 15) {
+                HStack(spacing: 25) {
+                    Spacer()
+                    
+                    Button(action: {
+                        withAnimation {
+                            isSearching = true
+                            viewModel.fetchWeather(for: viewModel.cityName)
+                        }
+                    }) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.title2)
+                            .foregroundColor(themeManager.currentTheme.text)
                     }
-                }) {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.title3)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(LinearGradient(
-                                    gradient: Gradient(colors: [themeManager.currentTheme.accent, themeManager.currentTheme.secondary]),
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                ))
-                                .shadow(color: themeManager.currentTheme.accent.opacity(0.3), radius: 10)
-                        )
-                        .frame(width: 90)
+                    .buttonStyle(ScaleButtonStyle())
+                    
+                    Button(action: { showingSettings = true }) {
+                        Image(systemName: "gearshape")
+                            .font(.title2)
+                            .foregroundColor(themeManager.currentTheme.text)
+                    }
+                    .buttonStyle(ScaleButtonStyle())
                 }
-                .buttonStyle(ScaleButtonStyle())
+                .padding(.horizontal)
+                
+                SearchBar(text: $viewModel.cityName,
+                         isSearching: $isSearching,
+                         onSearch: { cityName in
+                    withAnimation {
+                        viewModel.fetchWeather(for: cityName)
+                        isSearching = false
+                    }
+                })
+                .padding(.horizontal)
+                
+                if let weather = viewModel.currentWeather {
+                    WeatherContentView(weather: weather,
+                                     forecast: viewModel.forecast,
+                                     isSearching: $isSearching)
+                } else {
+                    LoadingView()
+                }
                 
                 Spacer()
-                
-                Button(action: { showingSettings = true }) {
-                    Image(systemName: "gear")
-                        .font(.title3)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(LinearGradient(
-                                    gradient: Gradient(colors: [themeManager.currentTheme.accent, themeManager.currentTheme.secondary]),
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                ))
-                                .shadow(color: themeManager.currentTheme.accent.opacity(0.3), radius: 10)
-                        )
-                        .frame(width: 90)
-                }
-                .buttonStyle(ScaleButtonStyle())
             }
-            
-            // Search bar
-            HStack(spacing: 15) {
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(themeManager.currentTheme.text.opacity(0.6))
-                        .padding(.leading, 8)
-                    
-                    TextField(localizationManager.localizedString(.enterCity), text: $viewModel.cityName)
-                        .textFieldStyle(PlainTextFieldStyle())
-                        .foregroundColor(themeManager.currentTheme.text)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
-                        .onChange(of: viewModel.cityName) { oldValue, newValue in
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                isSearching = true
-                            }
-                        }
-                }
-                .padding(12)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(themeManager.currentTheme.cardBackground)
-                        .shadow(color: themeManager.currentTheme.cardShadow, radius: 10)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(themeManager.currentTheme.text.opacity(0.2), lineWidth: 1)
-                        )
-                )
-                
-                Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        isSearching = false
-                        viewModel.fetchWeather(for: viewModel.cityName)
-                    }
-                }) {
-                    Text(localizationManager.localizedString(.show))
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(LinearGradient(
-                                    gradient: Gradient(colors: [themeManager.currentTheme.accent, themeManager.currentTheme.secondary]),
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                ))
-                                .shadow(color: themeManager.currentTheme.accent.opacity(0.3), radius: 10)
-                        )
-                }
-                .scaleEffect(isSearching ? 1.05 : 1.0)
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSearching)
-            }
-        }
-        .padding(.horizontal)
-    }
-    
-    // Izdvajamo prikaz vremena u zasebnu computed property
-    private var weatherContentView: some View {
-        Group {
-            if let weather = viewModel.weather {
-                WeatherInfoView(weather: weather)
-                    .environmentObject(themeManager)
-                    .padding(30)
-                    .background(
-                        RoundedRectangle(cornerRadius: 30)
-                            .fill(themeManager.currentTheme.cardBackground)
-                            .shadow(color: themeManager.currentTheme.cardShadow, radius: 15)
-                    )
-                    .padding(.horizontal)
-                    .transition(.asymmetric(
-                        insertion: .scale.combined(with: .opacity),
-                        removal: .scale.combined(with: .opacity)
-                    ))
-                
-                if let forecast = viewModel.forecast {
-                    TemperatureChartView(forecast: forecast)
-                        .padding(.vertical, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(themeManager.currentTheme.cardBackground)
-                                .shadow(color: themeManager.currentTheme.cardShadow, radius: 10)
-                        )
-                        .padding(.horizontal)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                    
-                    ForecastView(forecast: forecast)
-                        .environmentObject(themeManager)
-                        .padding(.vertical, 15)
-                        .background(
-                            RoundedRectangle(cornerRadius: 30)
-                                .fill(themeManager.currentTheme.cardBackground)
-                                .shadow(color: themeManager.currentTheme.cardShadow, radius: 15)
-                        )
-                        .padding(.horizontal)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-            } else {
-                LoadingView()
-                    .transition(.scale.combined(with: .opacity))
-            }
-        }
-    }
-    
-    var body: some View {
-        ZStack {
-            backgroundView
-            
-            ScrollView {
-                VStack(spacing: 25) {
-                    controlsView
-                    weatherContentView
-                }
-                .padding(.vertical)
-            }
-        }
-        .environmentObject(themeManager)
-        .onAppear {
-            withAnimation {
-                viewModel.fetchWeather(for: viewModel.cityName)
-            }
-        }
-        .onChange(of: viewModel.weather) { _, newValue in
-            if let weather = newValue {
-                let timezone = TimeZone(secondsFromGMT: weather.timezone) ?? TimeZone.current
-                themeManager.updateTimezone(timezone)
-            }
-        }
-        .sheet(isPresented: $showingLanguagePicker) {
-            LanguagePickerView()
-                .preferredColorScheme(.light)
-                .environmentObject(themeManager)
-        }
-        .sheet(isPresented: $showingJSONData) {
-            JSONDataView(jsonData: viewModel.jsonData)
-                .preferredColorScheme(.light)
-                .environmentObject(themeManager)
+            .padding(.top)
         }
         .sheet(isPresented: $showingSettings) {
             SettingsView()
-                .environmentObject(themeManager)
-                .environmentObject(localizationManager)
         }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { showingSettings = true }) {
-                    Image(systemName: "gear")
-                        .foregroundColor(themeManager.currentTheme.accent)
-                }
-            }
+        .onAppear {
+            viewModel.fetchWeather(for: viewModel.cityName)
         }
     }
 }
@@ -698,9 +533,16 @@ private struct WeatherInfoView: View {
     }
     
     private var weatherDetailsGrid: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 30) {
+        LazyVGrid(
+            columns: [
+                GridItem(.flexible(), spacing: 20),
+                GridItem(.flexible(), spacing: 20)
+            ],
+            spacing: 20
+        ) {
             weatherDetailRows
         }
+        .padding(.horizontal)
         .padding(.top, 20)
     }
     
@@ -1262,14 +1104,13 @@ private struct WeatherDataRow: View {
     @EnvironmentObject private var themeManager: ThemeManager
     
     var body: some View {
-        HStack(spacing: 15) {
+        VStack(spacing: 10) {
             Image(systemName: icon)
                 .font(.title3)
                 .foregroundColor(themeManager.currentTheme.text.opacity(0.9))
                 .shadow(color: themeManager.currentTheme.accent.opacity(0.3), radius: 5)
-                .frame(width: 30)
             
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(spacing: 5) {
                 Text(title)
                     .font(.caption)
                     .foregroundColor(themeManager.currentTheme.text.opacity(0.7))
@@ -1280,10 +1121,10 @@ private struct WeatherDataRow: View {
                     .shadow(color: themeManager.currentTheme.text.opacity(0.2), radius: 3)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
         .opacity(isAppeared ? 1 : 0)
-        .offset(x: isAppeared ? 0 : -20)
+        .offset(y: isAppeared ? 0 : 20)
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(delay)) {
                 isAppeared = true
@@ -1609,5 +1450,82 @@ struct ScaleButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.9 : 1)
             .animation(.spring(response: 0.2, dampingFraction: 0.6), value: configuration.isPressed)
+    }
+}
+
+extension View {
+    func placeholder<Content: View>(
+        when shouldShow: Bool,
+        alignment: Alignment = .leading,
+        @ViewBuilder placeholder: () -> Content) -> some View {
+        
+        ZStack(alignment: alignment) {
+            placeholder().opacity(shouldShow ? 1 : 0)
+            self
+        }
+    }
+}
+
+private struct SearchBar: View {
+    @Binding var text: String
+    @Binding var isSearching: Bool
+    let onSearch: (String) -> Void
+    @EnvironmentObject private var themeManager: ThemeManager
+    @StateObject private var localizationManager = LocalizationManager.shared
+    @FocusState private var isFocused: Bool
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(themeManager.currentTheme.text.opacity(0.6))
+            
+            TextField("", text: $text)
+                .placeholder(when: text.isEmpty) {
+                    Text("Enter city name")
+                        .foregroundColor(themeManager.currentTheme.text.opacity(0.6))
+                }
+                .textFieldStyle(PlainTextFieldStyle())
+                .foregroundColor(themeManager.currentTheme.text)
+                .focused($isFocused)
+                .onSubmit {
+                    if !text.isEmpty {
+                        onSearch(text)
+                    }
+                }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 15)
+                .fill(themeManager.currentTheme.cardBackground.opacity(0.8))
+        )
+        .onChange(of: isSearching) { newValue in
+            if newValue {
+                isFocused = true
+            }
+        }
+    }
+}
+
+struct WeatherContentView: View {
+    let weather: WeatherResponse
+    let forecast: ForecastResponse?
+    @Binding var isSearching: Bool
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 25) {
+                WeatherInfoView(weather: weather)
+                    .padding(.horizontal)
+                
+                if let forecast = forecast {
+                    TemperatureChartView(forecast: forecast)
+                        .padding(.horizontal)
+                    
+                    ForecastView(forecast: forecast)
+                        .padding(.horizontal)
+                }
+            }
+            .padding(.vertical)
+        }
     }
 } 

@@ -8,10 +8,13 @@
 import SwiftUI
 
 @main
-struct WeatherNowApp: App {
+struct wthrsoftApp: App {
+    @StateObject private var themeManager = ThemeManager()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            WeatherView()
+                .environmentObject(themeManager)
         }
     }
 }
