@@ -1498,7 +1498,7 @@ private struct SearchBar: View {
             RoundedRectangle(cornerRadius: 15)
                 .fill(themeManager.currentTheme.cardBackground.opacity(0.8))
         )
-        .onChange(of: isSearching) { newValue in
+        .onChange(of: isSearching) { oldValue, newValue in
             if newValue {
                 isFocused = true
             }
