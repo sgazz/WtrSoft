@@ -144,6 +144,32 @@ struct SettingsView: View {
         isDarkMode ? Color(red: 0.4, green: 0.7, blue: 1.0) : Color(red: 0.0, green: 0.5, blue: 1.0)
     }
     
+    private var cardBackgroundColor: Color {
+        switch selectedTheme {
+        case "light":
+            return .white
+        case "dark":
+            return Color(red: 0.17, green: 0.17, blue: 0.19)
+        case "system":
+            return colorScheme == .dark ? Color(red: 0.17, green: 0.17, blue: 0.19) : .white
+        default: // "auto"
+            return isDarkMode ? Color(red: 0.17, green: 0.17, blue: 0.19) : .white
+        }
+    }
+
+    private var pickerBackgroundColor: Color {
+        switch selectedTheme {
+        case "light":
+            return .white
+        case "dark":
+            return Color(red: 0.2, green: 0.2, blue: 0.22)
+        case "system":
+            return colorScheme == .dark ? Color(red: 0.2, green: 0.2, blue: 0.22) : .white
+        default: // "auto"
+            return isDarkMode ? Color(red: 0.2, green: 0.2, blue: 0.22) : .white
+        }
+    }
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -213,7 +239,7 @@ struct SettingsView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 15)
-                .fill(isDarkMode ? Color(red: 0.17, green: 0.17, blue: 0.19) : .white)
+                .fill(cardBackgroundColor)
                 .shadow(
                     color: isDarkMode ? Color.black.opacity(0.4) : Color.black.opacity(0.1),
                     radius: isDarkMode ? 10 : 5,
@@ -233,6 +259,8 @@ struct SettingsView: View {
         }
         .pickerStyle(.segmented)
         .tint(accentColor)
+        .background(pickerBackgroundColor)
+        .preferredColorScheme(selectedTheme == "light" ? .light : (selectedTheme == "dark" ? .dark : colorScheme))
     }
     
     private var themePicker: some View {
@@ -248,6 +276,8 @@ struct SettingsView: View {
         }
         .pickerStyle(.segmented)
         .tint(accentColor)
+        .background(pickerBackgroundColor)
+        .preferredColorScheme(selectedTheme == "light" ? .light : (selectedTheme == "dark" ? .dark : colorScheme))
         .onChange(of: selectedTheme) { _, newValue in
             UserDefaults.standard.set(newValue, forKey: "selectedTheme")
             NotificationCenter.default.post(name: NSNotification.Name("ThemeChanged"), object: nil)
