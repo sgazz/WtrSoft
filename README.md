@@ -1,63 +1,72 @@
-# WtrSoft - Aplikacija za vremensku prognozu
+# Weather App
 
-WtrSoft je moderna iOS aplikacija za praćenje vremenske prognoze, napisana u SwiftUI-u. Aplikacija pruža detaljne informacije o trenutnom vremenu i 5-dnevnu prognozu za bilo koji grad na svetu.
+A beautiful and modern weather application built with SwiftUI that provides detailed weather information and forecasts.
 
-## Funkcionalnosti
+## Features
 
-- 🌍 Pretraga vremenske prognoze za bilo koji grad
-- 🌡️ Detaljne informacije o trenutnom vremenu
-- 📅 5-dnevna vremenska prognoza
-- 🕒 Prikaz lokalnog vremena u izabranom gradu
-- 🌐 Podrška za više jezika (srpski, engleski, nemački, ruski)
-- 📱 Moderni i responzivan dizajn
-- 📍 Automatsko otkrivanje lokacije
+- **Real-time Weather Data**: Get current weather conditions for any city worldwide
+- **Detailed Weather Information**:
+  - Temperature (current, min, max, feels like)
+  - Wind speed
+  - Humidity
+  - Atmospheric pressure
+  - Visibility
+  - Sunrise and sunset times
+  - Moon phase and illumination
+  - Moonrise and moonset times
 
-## Zahtevi
+- **Smart UI Features**:
+  - Automatic day/night theme switching based on location time
+  - Dynamic weather icons that change based on time of day
+  - Smooth animations and transitions
+  - Responsive layout that adapts to different screen sizes
 
-- iOS 15.0+
-- Xcode 13.0+
-- Swift 5.5+
+- **Search Functionality**:
+  - Quick city search
+  - Real-time weather updates
 
-## Instalacija
+- **Customization**:
+  - Multiple language support (English, German, Russian, Serbian)
+  - Theme customization options
+  - Display preferences
 
-1. Klonirajte repozitorijum:
-```bash
-git clone https://github.com/sgazz/WtrSoft.git
+## Technical Details
+
+- Built with SwiftUI
+- Uses OpenWeather API for weather data
+- Implements MVVM architecture
+- Features reactive programming with Combine
+- Handles time zones automatically
+- Supports iOS 15.0+
+
+## Installation
+
+1. Clone the repository
+2. Open `wthrsoft.xcodeproj` in Xcode
+3. Add your OpenWeather API key in `Config.swift`
+4. Build and run the project
+
+## Configuration
+
+The app requires an OpenWeather API key to function. To add your API key:
+
+1. Sign up at [OpenWeather](https://openweathermap.org/api)
+2. Get your API key
+3. Create a `Config.swift` file in the project
+4. Add your API key:
+```swift
+struct Config {
+    static let apiKey = "YOUR_API_KEY"
+}
 ```
 
-2. Otvorite projekat u Xcode-u:
-```bash
-cd WtrSoft
-open wthrsoft.xcodeproj
-```
+## Contributing
 
-3. Kreirajte `Config.swift` fajl:
-   - Kopirajte `ExampleConfig.swift` u `Config.swift`
-   - Unesite svoj OpenWeather API ključ u `Config.swift`
+Feel free to submit issues, fork the repository, and create pull requests for any improvements.
 
-4. Pokrenite aplikaciju u Xcode-u
+## License
 
-## Korišćenje
-
-1. Unesite naziv grada u polje za pretragu
-2. Pritisnite dugme "Prikaži" da vidite vremensku prognozu
-3. Koristite dugme sa ikonom globusa da promenite jezik aplikacije
-
-## Struktura projekta
-
-- `WeatherView.swift` - Glavni view aplikacije
-- `WeatherViewModel.swift` - ViewModel za upravljanje podacima
-- `Localization.swift` - Upravljanje lokalizacijom
-- `Config.swift` - Konfiguracioni fajl (API ključ)
-- `ExampleConfig.swift` - Primer konfiguracionog fajla
-
-## API
-
-Aplikacija koristi OpenWeather API za dobijanje vremenskih podataka. Potreban vam je API ključ koji možete dobiti na [OpenWeather](https://openweathermap.org/api).
-
-## Licenca
-
-Ovaj projekat je licenciran pod MIT licencom - pogledajte [LICENSE](LICENSE) fajl za detalje.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Autor
 
