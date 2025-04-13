@@ -369,6 +369,7 @@ struct WeatherView: View {
             }
             .padding(.top)
         }
+        .environmentObject(viewModel)
         .sheet(isPresented: $showingSettings) {
             SettingsView()
         }
@@ -382,7 +383,7 @@ struct WeatherView: View {
 private struct WeatherInfoView: View {
     let weather: WeatherResponse
     @StateObject private var localizationManager = LocalizationManager.shared
-    @StateObject private var viewModel = WeatherViewModel()
+    @EnvironmentObject private var viewModel: WeatherViewModel
     @State private var currentTime = ""
     @State private var isAppeared = false
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -394,6 +395,14 @@ private struct WeatherInfoView: View {
     
     private var weatherCondition: String {
         weather.weather.first?.description ?? ""
+    }
+    
+    private var temperatureUnit: String {
+        viewModel.useMetricUnits ? "℃" : "℉"
+    }
+    
+    private var windSpeedUnit: String {
+        viewModel.useMetricUnits ? "m/s" : "mph"
     }
     
     private var themeColor: Color {
@@ -498,7 +507,7 @@ private struct WeatherInfoView: View {
     
     private var temperatureSection: some View {
         VStack(spacing: 25) {
-            Text("\(Int(weather.main.temp))℃")
+            Text("\(Int(weather.main.temp))\(temperatureUnit)")
                 .font(.system(size: 80, weight: .bold, design: .rounded))
                 .foregroundColor(themeManager.currentTheme.text.opacity(0.95))
                 .shadow(color: themeColor.opacity(0.3), radius: 10)
@@ -508,21 +517,21 @@ private struct WeatherInfoView: View {
             HStack(spacing: 30) {
                 TemperatureInfo(
                     title: localizationManager.localizedString(.minTemp),
-                    value: "\(Int(weather.main.temp_min))℃",
+                    value: "\(Int(weather.main.temp_min))\(temperatureUnit)",
                     icon: "thermometer.low",
                     delay: 0.1,
                     condition: weatherCondition
                 )
                 TemperatureInfo(
                     title: localizationManager.localizedString(.maxTemp),
-                    value: "\(Int(weather.main.temp_max))℃",
+                    value: "\(Int(weather.main.temp_max))\(temperatureUnit)",
                     icon: "thermometer.high",
                     delay: 0.2,
                     condition: weatherCondition
                 )
                 TemperatureInfo(
                     title: localizationManager.localizedString(.feelsLike),
-                    value: "\(Int(weather.main.feels_like))℃",
+                    value: "\(Int(weather.main.feels_like))\(temperatureUnit)",
                     icon: "thermometer.medium",
                     delay: 0.3,
                     condition: weatherCondition
@@ -565,7 +574,7 @@ private struct WeatherInfoView: View {
             if showWindDetails {
                 WeatherDataRow(
                     title: localizationManager.localizedString(.wind),
-                    value: "\(weather.wind.speed) m/s",
+                    value: "\(Int(weather.wind.speed)) \(windSpeedUnit)",
                     icon: "wind",
                     delay: 0.3,
                     condition: weatherCondition
@@ -936,8 +945,17 @@ private struct ForecastItemView: View {
     let isSelected: Bool
     let delay: Double
     @StateObject private var localizationManager = LocalizationManager.shared
+    @EnvironmentObject private var viewModel: WeatherViewModel
     @State private var isAppeared = false
     @EnvironmentObject private var themeManager: ThemeManager
+    
+    private var temperatureUnit: String {
+        viewModel.useMetricUnits ? "℃" : "℉"
+    }
+    
+    private var windSpeedUnit: String {
+        viewModel.useMetricUnits ? "m/s" : "mph"
+    }
     
     private var weatherIcon: String {
         if let condition = item.weather.first?.description {
@@ -1005,7 +1023,7 @@ private struct ForecastItemView: View {
                 .foregroundStyle(iconColor.gradient)
                 .shadow(color: iconColor.opacity(0.5), radius: 8)
             
-            Text("\(Int(item.main.temp))℃")
+            Text("\(Int(item.main.temp))\(temperatureUnit)")
                 .font(.system(.title2, design: .rounded))
                 .fontWeight(.bold)
                 .foregroundColor(themeManager.currentTheme.text)
@@ -1018,10 +1036,10 @@ private struct ForecastItemView: View {
             
             if isSelected {
                 VStack(spacing: 12) {
-                    WeatherDetailRow(icon: "thermometer.low", value: "\(Int(item.main.temp_min))℃")
-                    WeatherDetailRow(icon: "thermometer.high", value: "\(Int(item.main.temp_max))℃")
+                    WeatherDetailRow(icon: "thermometer.low", value: "\(Int(item.main.temp_min))\(temperatureUnit)")
+                    WeatherDetailRow(icon: "thermometer.high", value: "\(Int(item.main.temp_max))\(temperatureUnit)")
                     WeatherDetailRow(icon: "humidity.fill", value: "\(item.main.humidity)%")
-                    WeatherDetailRow(icon: "wind", value: "\(Int(item.wind.speed))m/s")
+                    WeatherDetailRow(icon: "wind", value: "\(Int(item.wind.speed)) \(windSpeedUnit)")
                 }
                 .padding(.top, 8)
                 .transition(.scale.combined(with: .opacity))

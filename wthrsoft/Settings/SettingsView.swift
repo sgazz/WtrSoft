@@ -300,7 +300,11 @@ struct SettingsView: View {
         .preferredColorScheme(selectedTheme == "light" ? .light : (selectedTheme == "dark" ? .dark : colorScheme))
         .onChange(of: useMetricUnits) { oldValue, newValue in
             UserDefaults.standard.set(newValue, forKey: "useMetricUnits")
-            NotificationCenter.default.post(name: NSNotification.Name("SettingsChanged"), object: nil)
+            NotificationCenter.default.post(
+                name: Notification.Name("UnitsChanged"),
+                object: nil,
+                userInfo: ["useMetricUnits": newValue]
+            )
         }
     }
     

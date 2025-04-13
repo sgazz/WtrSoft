@@ -17,6 +17,7 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var jsonData: String = ""
     @Published var currentWeather: WeatherResponse?
     @Published var error: Error?
+    @AppStorage("useMetricUnits") var useMetricUnits = true
     private let locationManager = CLLocationManager()
     private let apiKey = Config.apiKey
     private let baseURL = "https://api.openweathermap.org/data/2.5"
@@ -24,6 +25,7 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     override init() {
         super.init()
         setupLocationManager()
+        setupNotifications()
     }
 
     private func setupLocationManager() {
@@ -33,11 +35,36 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         locationManager.startUpdatingLocation()
     }
 
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleUnitsChanged),
+            name: Notification.Name("UnitsChanged"),
+            object: nil
+        )
+    }
+
+    @objc private func handleUnitsChanged(_ notification: Notification) {
+        if let useMetric = notification.userInfo?["useMetricUnits"] as? Bool {
+            DispatchQueue.main.async { [weak self] in
+                self?.useMetricUnits = useMetric
+                // Освежавамо податке за тренутни град
+                if let currentCity = self?.currentWeather?.name {
+                    self?.fetchWeather(for: currentCity)
+                }
+            }
+        }
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     func fetchWeather(for city: String) {
         guard let encodedCity = city.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
         
-        // Fetch current weather
-        let weatherURL = "\(baseURL)/weather?q=\(encodedCity)&appid=\(apiKey)&units=metric"
+        let units = useMetricUnits ? "metric" : "imperial"
+        let weatherURL = "\(baseURL)/weather?q=\(encodedCity)&appid=\(apiKey)&units=\(units)"
         
         guard let url = URL(string: weatherURL) else { return }
         
@@ -67,7 +94,8 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     private func fetchForecast(for city: String) {
         guard let encodedCity = city.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
         
-        let forecastURL = "\(baseURL)/forecast?q=\(encodedCity)&appid=\(apiKey)&units=metric"
+        let units = useMetricUnits ? "metric" : "imperial"
+        let forecastURL = "\(baseURL)/forecast?q=\(encodedCity)&appid=\(apiKey)&units=\(units)"
         
         guard let url = URL(string: forecastURL) else { return }
         
@@ -93,10 +121,11 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
-            let urlString = "https://api.openweathermap.org/data/2.5/weather?lat=\(location.coordinate.latitude)&lon=\(location.coordinate.longitude)&appid=\(apiKey)&units=metric"
+            let units = useMetricUnits ? "metric" : "imperial"
+            let urlString = "https://api.openweathermap.org/data/2.5/weather?lat=\(location.coordinate.latitude)&lon=\(location.coordinate.longitude)&appid=\(apiKey)&units=\(units)"
             fetchWeatherData(from: urlString)
             
-            let forecastUrlString = "https://api.openweathermap.org/data/2.5/forecast?lat=\(location.coordinate.latitude)&lon=\(location.coordinate.longitude)&appid=\(apiKey)&units=metric"
+            let forecastUrlString = "https://api.openweathermap.org/data/2.5/forecast?lat=\(location.coordinate.latitude)&lon=\(location.coordinate.longitude)&appid=\(apiKey)&units=\(units)"
             fetchForecastData(from: forecastUrlString)
         }
     }
@@ -155,6 +184,24 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         formatter.timeZone = timeZone
         
         return formatter.string(from: date)
+    }
+
+    // Helper functions for temperature conversion
+    func celsiusToFahrenheit(_ celsius: Double) -> Double {
+        return (celsius * 9/5) + 32
+    }
+    
+    func fahrenheitToCelsius(_ fahrenheit: Double) -> Double {
+        return (fahrenheit - 32) * 5/9
+    }
+    
+    // Helper functions for wind speed conversion
+    func metersPerSecondToMilesPerHour(_ mps: Double) -> Double {
+        return mps * 2.237
+    }
+    
+    func milesPerHourToMetersPerSecond(_ mph: Double) -> Double {
+        return mph / 2.237
     }
 }
 
