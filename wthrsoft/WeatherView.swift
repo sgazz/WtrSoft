@@ -161,6 +161,44 @@ struct ThemeColors {
             cardShadow: Color.black.opacity(0.3)
         )
     }
+    
+    static var light: ThemeColors {
+        ThemeColors(
+            background: LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "F0F8FF").opacity(0.8),
+                    Color(hex: "E6E6FA").opacity(0.6),
+                    Color(hex: "FFFFFF").opacity(0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            text: Color(hex: "2F4F4F"),
+            accent: Color(hex: "4169E1"),
+            secondary: Color(hex: "87CEEB"),
+            cardBackground: Color.white.opacity(0.2),
+            cardShadow: Color.black.opacity(0.1)
+        )
+    }
+    
+    static var dark: ThemeColors {
+        ThemeColors(
+            background: LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "2F4F4F").opacity(0.8),
+                    Color(hex: "1A1A1A").opacity(0.6),
+                    Color(hex: "000000").opacity(0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            text: Color(hex: "F5F5F5"),
+            accent: Color(hex: "00CED1"),
+            secondary: Color(hex: "4682B4"),
+            cardBackground: Color.white.opacity(0.1),
+            cardShadow: Color.black.opacity(0.3)
+        )
+    }
 }
 
 // Dodajemo timer za ažuriranje teme
@@ -263,44 +301,6 @@ class ThemeManager: ObservableObject {
 
 // Dodajemo nove teme
 extension ThemeColors {
-    static var light: ThemeColors {
-        ThemeColors(
-            background: LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(hex: "FFFFFF").opacity(0.9),
-                    Color(hex: "F0F0F0").opacity(0.8),
-                    Color(hex: "E0E0E0").opacity(0.7)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            ),
-            text: Color(hex: "000000"),
-            accent: Color(hex: "007AFF"),
-            secondary: Color(hex: "5856D6"),
-            cardBackground: Color.white.opacity(0.15),
-            cardShadow: Color.black.opacity(0.05)
-        )
-    }
-    
-    static var dark: ThemeColors {
-        ThemeColors(
-            background: LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(hex: "000000").opacity(0.9),
-                    Color(hex: "1C1C1E").opacity(0.8),
-                    Color(hex: "2C2C2E").opacity(0.7)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            ),
-            text: Color(hex: "FFFFFF"),
-            accent: Color(hex: "0A84FF"),
-            secondary: Color(hex: "5E5CE6"),
-            cardBackground: Color.black.opacity(0.15),
-            cardShadow: Color.black.opacity(0.1)
-        )
-    }
-    
     static var system: ThemeColors {
         if #available(iOS 13.0, *) {
             return UITraitCollection.current.userInterfaceStyle == .dark ? .dark : .light
@@ -312,62 +312,143 @@ extension ThemeColors {
 
 struct WeatherView: View {
     @StateObject private var viewModel = WeatherViewModel()
-    @State private var showingSettings = false
-    @State private var isSearching = false
     @StateObject private var localizationManager = LocalizationManager.shared
+    @StateObject private var favoritesManager = FavoritesManager.shared
+    @State private var isSearching = false
+    @State private var searchText = ""
+    @State private var showingJSONData = false
+    @State private var showingLanguagePicker = false
+    @State private var showingSettings = false
+    @State private var showingFavorites = false
     @EnvironmentObject private var themeManager: ThemeManager
     
+    private var toolbarItems: some View {
+        HStack(spacing: 15) {
+            Button(action: {
+                showingFavorites = true
+            }) {
+                Image(systemName: "star.fill")
+                    .foregroundColor(themeManager.currentTheme.accent)
+            }
+            
+            Button(action: {
+                showingLanguagePicker = true
+            }) {
+                Image(systemName: "globe")
+                    .foregroundColor(themeManager.currentTheme.accent)
+            }
+            
+            Button(action: {
+                showingSettings = true
+            }) {
+                Image(systemName: "gear")
+                    .foregroundColor(themeManager.currentTheme.accent)
+            }
+        }
+    }
+
+    private var weatherHeader: some View {
+        HStack {
+            Button(action: {
+                isSearching = true
+            }) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(themeManager.currentTheme.accent)
+            }
+            
+            Spacer()
+            
+            HStack(spacing: 15) {
+                Button(action: {
+                    showingFavorites = true
+                }) {
+                    Image(systemName: "list.star")
+                        .foregroundColor(themeManager.currentTheme.accent)
+                }
+                
+                Button(action: {
+                    if favoritesManager.isFavorite(name: viewModel.cityName) {
+                        if let location = favoritesManager.favorites.first(where: { $0.name == viewModel.cityName }) {
+                            favoritesManager.removeFavorite(location)
+                        }
+                    } else {
+                        favoritesManager.addFavorite(
+                            name: viewModel.cityName,
+                            latitude: viewModel.weather?.coord.lat ?? 0,
+                            longitude: viewModel.weather?.coord.lon ?? 0
+                        )
+                    }
+                }) {
+                    Image(systemName: favoritesManager.isFavorite(name: viewModel.cityName) ? "star.fill" : "star")
+                        .foregroundColor(themeManager.currentTheme.accent)
+                }
+                
+                Button(action: {
+                    showingSettings = true
+                }) {
+                    Image(systemName: "gear")
+                        .foregroundColor(themeManager.currentTheme.accent)
+                }
+            }
+        }
+        .padding(.horizontal)
+    }
+
+    private var searchView: some View {
+        VStack {
+            SearchBar(
+                text: $searchText,
+                isSearching: $isSearching,
+                onSearch: { city in
+                    viewModel.fetchWeather(for: city)
+                    isSearching = false
+                }
+            )
+            .padding()
+            
+            if let weather = viewModel.weather {
+                WeatherContentView(
+                    weather: weather,
+                    forecast: viewModel.forecast,
+                    isSearching: $isSearching
+                )
+            }
+        }
+    }
+
     var body: some View {
         ZStack {
             themeManager.currentTheme.background
                 .ignoresSafeArea()
             
-            VStack(spacing: 15) {
-                HStack(spacing: 25) {
-                    Spacer()
-                    
-                    Button(action: {
-                        withAnimation {
-                            isSearching = true
-                            viewModel.fetchWeather(for: viewModel.cityName)
+            if isSearching {
+                searchView
+            } else if let weather = viewModel.weather {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        weatherHeader
+                        WeatherInfoView(weather: weather)
+                        
+                        if let forecast = viewModel.forecast {
+                            TemperatureChartView(forecast: forecast)
+                                .padding(.horizontal)
+                            
+                            ForecastView(forecast: forecast)
+                                .padding(.horizontal)
                         }
-                    }) {
-                        Image(systemName: "magnifyingglass")
-                            .font(.title2)
-                            .foregroundColor(themeManager.currentTheme.text)
                     }
-                    .buttonStyle(ScaleButtonStyle())
-                    
-                    Button(action: { showingSettings = true }) {
-                        Image(systemName: "gearshape")
-                            .font(.title2)
-                            .foregroundColor(themeManager.currentTheme.text)
-                    }
-                    .buttonStyle(ScaleButtonStyle())
+                    .padding()
                 }
-                .padding(.horizontal)
-                
-                SearchBar(text: $viewModel.cityName,
-                         isSearching: $isSearching,
-                         onSearch: { cityName in
-                    withAnimation {
-                        viewModel.fetchWeather(for: cityName)
-                        isSearching = false
-                    }
-                })
-                .padding(.horizontal)
-                
-                if let weather = viewModel.currentWeather {
-                    WeatherContentView(weather: weather,
-                                     forecast: viewModel.forecast,
-                                     isSearching: $isSearching)
-                } else {
-                    LoadingView()
-                }
-                
-                Spacer()
+            } else {
+                LoadingView()
             }
-            .padding(.top)
+        }
+        .sheet(isPresented: $showingFavorites) {
+            FavoritesView { location in
+                searchText = location
+                viewModel.fetchWeather(for: location)
+            }
+            .environmentObject(themeManager)
         }
         .sheet(isPresented: $showingSettings) {
             SettingsView()
@@ -493,6 +574,19 @@ private struct WeatherInfoView: View {
             return ("01:00", "13:00")
         default:
             return ("18:00", "06:00")
+        }
+    }
+    
+    private var currentTimeSection: some View {
+        HStack {
+            Image(systemName: "clock")
+                .foregroundColor(themeManager.currentTheme.accent)
+            Text(localizationManager.localizedString(.currentTime) + ": " + currentTime)
+                .font(.subheadline)
+                .foregroundColor(themeManager.currentTheme.text)
+        }
+        .onReceive(timer) { _ in
+            currentTime = viewModel.getCurrentLocalTime(for: weather.timezone)
         }
     }
     
@@ -651,14 +745,7 @@ private struct WeatherInfoView: View {
                     .shadow(color: themeManager.currentTheme.accent.opacity(0.2), radius: 2)
                     .scaleEffect(isAppeared ? 1 : 0.8)
                 
-                HStack(spacing: 8) {
-                    Image(systemName: "clock.fill")
-                        .foregroundColor(themeManager.currentTheme.accent.opacity(0.8))
-                    Text("\(localizationManager.localizedString(.currentTime)): \(currentTime)")
-                        .font(.system(.title3, design: .rounded))
-                        .foregroundColor(themeManager.currentTheme.accent.opacity(0.8))
-                }
-                .scaleEffect(isAppeared ? 1 : 0.8)
+                currentTimeSection
                 
                 if let weatherCondition = weather.weather.first?.description {
                     AnimatedWeatherIcon(condition: weatherCondition)
@@ -1490,6 +1577,7 @@ private struct SearchBar: View {
                 .onSubmit {
                     if !text.isEmpty {
                         onSearch(text)
+                        text = "" // Брисање текста након претраге
                     }
                 }
         }

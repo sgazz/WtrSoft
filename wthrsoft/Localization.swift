@@ -118,6 +118,11 @@ enum LocalizationKey {
     case showTemperature
     case showHumidity
     case showWind
+    case favorites
+    case noFavorites
+    case addToFavorites
+    case removeFromFavorites
+    case delete
     
     func localizedString(for language: Language) -> String {
         switch language {
@@ -210,6 +215,11 @@ enum LocalizationKey {
         case .showTemperature: return "Show Temperature"
         case .showHumidity: return "Show Humidity"
         case .showWind: return "Show Wind"
+        case .favorites: return "Favorites"
+        case .noFavorites: return "No favorite locations"
+        case .addToFavorites: return "Add to Favorites"
+        case .removeFromFavorites: return "Remove from Favorites"
+        case .delete: return "Delete"
         }
     }
     
@@ -291,6 +301,11 @@ enum LocalizationKey {
         case .showTemperature: return "Temperatur anzeigen"
         case .showHumidity: return "Luftfeuchtigkeit anzeigen"
         case .showWind: return "Wind anzeigen"
+        case .favorites: return "Favoriten"
+        case .noFavorites: return "Keine Favoriten"
+        case .addToFavorites: return "Zu Favoriten hinzufügen"
+        case .removeFromFavorites: return "Aus Favoriten entfernen"
+        case .delete: return "Löschen"
         }
     }
     
@@ -372,6 +387,11 @@ enum LocalizationKey {
         case .showTemperature: return "Показывать температуру"
         case .showHumidity: return "Показывать влажность"
         case .showWind: return "Показывать ветер"
+        case .favorites: return "Избранное"
+        case .noFavorites: return "Нет избранных мест"
+        case .addToFavorites: return "Добавить в избранное"
+        case .removeFromFavorites: return "Удалить из избранного"
+        case .delete: return "Удалить"
         }
     }
     
@@ -453,6 +473,11 @@ enum LocalizationKey {
         case .showTemperature: return "Prikazati temperaturu"
         case .showHumidity: return "Prikazati vlažnost"
         case .showWind: return "Prikazati vetar"
+        case .favorites: return "Омиљене локације"
+        case .noFavorites: return "Нема омиљених локација"
+        case .addToFavorites: return "Додај у омиљене"
+        case .removeFromFavorites: return "Уклони из омиљених"
+        case .delete: return "Обриши"
         }
     }
 } 
