@@ -7,12 +7,10 @@ struct SettingsView: View {
     @StateObject private var localizationManager = LocalizationManager.shared
     @State private var selectedLanguage = "sr"
     @State private var selectedTheme = "auto"
-    @State private var showTemperature = true
-    @State private var showHumidity = true
-    @State private var showWind = true
     @State private var animationsEnabled = true
     @State private var locationEnabled = true
     @State private var deviceDataEnabled = true
+    @AppStorage("useMetricUnits") private var useMetricUnits = true
     
     private var isDarkMode: Bool {
         switch selectedTheme {
@@ -185,6 +183,10 @@ struct SettingsView: View {
                             themePicker
                         }
                         
+                        settingsSection(title: localizationManager.localizedString(.units), icon: "ruler") {
+                            unitsToggle
+                        }
+                        
                         settingsSection(title: localizationManager.localizedString(.dataDisplay), icon: "chart.bar") {
                             dataDisplayOptions
                         }
@@ -204,21 +206,19 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: saveSettings) {
-                        Text(localizationManager.localizedString(.done))
-                            .foregroundColor(accentColor)
+                    Button(localizationManager.localizedString(.done)) {
+                        saveSettings()
+                        dismiss()
                     }
                 }
             }
             .onAppear {
                 // Učitaj sačuvane vrednosti
                 selectedTheme = UserDefaults.standard.string(forKey: "selectedTheme") ?? "auto"
-                showTemperature = UserDefaults.standard.bool(forKey: "showTemperature")
-                showHumidity = UserDefaults.standard.bool(forKey: "showHumidity")
-                showWind = UserDefaults.standard.bool(forKey: "showWind")
-                animationsEnabled = UserDefaults.standard.bool(forKey: "animationsEnabled")
+                animationsEnabled = UserDefaults.standard.bool(forKey: "enableAnimations")
                 locationEnabled = UserDefaults.standard.bool(forKey: "locationEnabled")
                 deviceDataEnabled = UserDefaults.standard.bool(forKey: "deviceDataEnabled")
+                useMetricUnits = UserDefaults.standard.bool(forKey: "useMetricUnits")
             }
         }
     }
@@ -287,35 +287,33 @@ struct SettingsView: View {
         }
     }
     
+    private var unitsToggle: some View {
+        Picker("", selection: $useMetricUnits) {
+            Text(localizationManager.localizedString(.metric)).tag(true)
+                .foregroundColor(textColor)
+            Text(localizationManager.localizedString(.imperial)).tag(false)
+                .foregroundColor(textColor)
+        }
+        .pickerStyle(.segmented)
+        .tint(accentColor)
+        .background(pickerBackgroundColor)
+        .preferredColorScheme(selectedTheme == "light" ? .light : (selectedTheme == "dark" ? .dark : colorScheme))
+        .onChange(of: useMetricUnits) { oldValue, newValue in
+            UserDefaults.standard.set(newValue, forKey: "useMetricUnits")
+            NotificationCenter.default.post(name: NSNotification.Name("SettingsChanged"), object: nil)
+        }
+    }
+    
     private var dataDisplayOptions: some View {
         VStack(spacing: 15) {
-            Toggle(isOn: $showTemperature) {
-                Text(LocalizationKey.showTemperature.localizedString(for: localizationManager.currentLanguage))
-            }
-            .onChange(of: showTemperature) { oldValue, newValue in
-                UserDefaults.standard.set(newValue, forKey: "showTemperature")
-            }
-            
-            Toggle(isOn: $showHumidity) {
-                Text(LocalizationKey.showHumidity.localizedString(for: localizationManager.currentLanguage))
-            }
-            .onChange(of: showHumidity) { oldValue, newValue in
-                UserDefaults.standard.set(newValue, forKey: "showHumidity")
-            }
-            
-            Toggle(isOn: $showWind) {
-                Text(LocalizationKey.showWind.localizedString(for: localizationManager.currentLanguage))
-            }
-            .onChange(of: showWind) { oldValue, newValue in
-                UserDefaults.standard.set(newValue, forKey: "showWind")
-            }
+            // Empty VStack for now
         }
     }
     
     private var animationToggle: some View {
         Toggle(localizationManager.localizedString(.enableAnimations), isOn: $animationsEnabled)
             .onChange(of: animationsEnabled) { _, newValue in
-                UserDefaults.standard.set(newValue, forKey: "animationsEnabled")
+                UserDefaults.standard.set(newValue, forKey: "enableAnimations")
             }
     }
     
@@ -334,21 +332,14 @@ struct SettingsView: View {
     }
     
     private func saveSettings() {
-        // Sačuvaj sve promene
+        UserDefaults.standard.set(selectedLanguage, forKey: "selectedLanguage")
         UserDefaults.standard.set(selectedTheme, forKey: "selectedTheme")
-        UserDefaults.standard.set(showTemperature, forKey: "showTemperature")
-        UserDefaults.standard.set(showHumidity, forKey: "showHumidity")
-        UserDefaults.standard.set(showWind, forKey: "showWind")
-        UserDefaults.standard.set(animationsEnabled, forKey: "animationsEnabled")
+        UserDefaults.standard.set(animationsEnabled, forKey: "enableAnimations")
         UserDefaults.standard.set(locationEnabled, forKey: "locationEnabled")
         UserDefaults.standard.set(deviceDataEnabled, forKey: "deviceDataEnabled")
+        UserDefaults.standard.set(useMetricUnits, forKey: "useMetricUnits")
         
-        // Objavi promene
-        NotificationCenter.default.post(name: NSNotification.Name("ThemeChanged"), object: nil)
         NotificationCenter.default.post(name: NSNotification.Name("SettingsChanged"), object: nil)
-        
-        // Zatvori view
-        dismiss()
     }
 }
 

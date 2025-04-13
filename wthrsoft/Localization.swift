@@ -118,17 +118,113 @@ enum LocalizationKey {
     case showTemperature
     case showHumidity
     case showWind
+    case metric
+    case imperial
     
     func localizedString(for language: Language) -> String {
-        switch language {
-        case .english:
-            return englishString
-        case .german:
-            return germanString
-        case .russian:
-            return russianString
-        case .serbian:
-            return serbianString
+        switch self {
+        case .enterCity: return englishString
+        case .show: return englishString
+        case .loading: return englishString
+        case .temperature: return englishString
+        case .minTemp: return englishString
+        case .maxTemp: return englishString
+        case .feelsLike: return englishString
+        case .description: return englishString
+        case .humidity: return englishString
+        case .wind: return englishString
+        case .pressure: return englishString
+        case .visibility: return englishString
+        case .sunrise: return englishString
+        case .sunset: return englishString
+        case .lastUpdated: return englishString
+        case .forecast: return englishString
+        case .today: return englishString
+        case .tomorrow: return englishString
+        case .close: return englishString
+        case .selectLanguage: return englishString
+        case .monday: return englishString
+        case .tuesday: return englishString
+        case .wednesday: return englishString
+        case .thursday: return englishString
+        case .friday: return englishString
+        case .saturday: return englishString
+        case .sunday: return englishString
+        case .currentTime: return englishString
+        case .jsonData: return englishString
+        case .moonPhase: return englishString
+        case .newMoon: return englishString
+        case .waxingCrescent: return englishString
+        case .firstQuarter: return englishString
+        case .waxingGibbous: return englishString
+        case .fullMoon: return englishString
+        case .waningGibbous: return englishString
+        case .lastQuarter: return englishString
+        case .waningCrescent: return englishString
+        case .moon: return englishString
+        case .moonIllumination: return englishString
+        case .moonRise: return englishString
+        case .moonSet: return englishString
+        case .settings: return englishString
+        case .language: return englishString
+        case .units:
+            switch language {
+            case .english: return "Units"
+            case .german: return "Einheiten"
+            case .russian: return "Единицы измерения"
+            case .serbian: return "Јединице мере"
+            }
+        case .useMetric:
+            switch language {
+            case .english: return "Use Metric Units"
+            case .german: return "Metrische Einheiten verwenden"
+            case .russian: return "Использовать метрическую систему"
+            case .serbian: return "Користи метричке јединице"
+            }
+        case .notifications: return englishString
+        case .enableNotifications: return englishString
+        case .updateSettings: return englishString
+        case .updateInterval: return englishString
+        case .minutes: return englishString
+        case .about: return englishString
+        case .version: return englishString
+        case .done: return englishString
+        case .theme: return englishString
+        case .themeAuto: return englishString
+        case .themeLight: return englishString
+        case .themeDark: return englishString
+        case .themeSystem: return englishString
+        case .selectTheme: return englishString
+        case .dataDisplay: return englishString
+        case .showMoonDetails: return englishString
+        case .showWindDetails: return englishString
+        case .showPressureDetails: return englishString
+        case .animations: return englishString
+        case .enableAnimations: return englishString
+        case .animationSpeed: return englishString
+        case .animationSpeedFast: return englishString
+        case .animationSpeedNormal: return englishString
+        case .animationSpeedSlow: return englishString
+        case .privacy: return englishString
+        case .collectUsageData: return englishString
+        case .locationAccess: return englishString
+        case .showTemperature: return englishString
+        case .showHumidity: return englishString
+        case .showWind: return englishString
+        case .metric:
+            switch language {
+            case .english: return "Metric"
+            case .german: return "Metrisch"
+            case .russian: return "Метрическая"
+            case .serbian: return "Метрички"
+            }
+        case .imperial:
+            switch language {
+            case .english: return "Imperial"
+            case .german: return "Imperial"
+            case .russian: return "Имперская"
+            case .serbian: return "Империјални"
+            }
         }
     }
     
@@ -210,6 +306,8 @@ enum LocalizationKey {
         case .showTemperature: return "Show Temperature"
         case .showHumidity: return "Show Humidity"
         case .showWind: return "Show Wind"
+        case .metric: return "Metric"
+        case .imperial: return "Imperial"
         }
     }
     
@@ -291,6 +389,8 @@ enum LocalizationKey {
         case .showTemperature: return "Temperatur anzeigen"
         case .showHumidity: return "Luftfeuchtigkeit anzeigen"
         case .showWind: return "Wind anzeigen"
+        case .metric: return "Metrisch"
+        case .imperial: return "Imperial"
         }
     }
     
@@ -372,6 +472,8 @@ enum LocalizationKey {
         case .showTemperature: return "Показывать температуру"
         case .showHumidity: return "Показывать влажность"
         case .showWind: return "Показывать ветер"
+        case .metric: return "Метрическая"
+        case .imperial: return "Имперская"
         }
     }
     
@@ -453,6 +555,8 @@ enum LocalizationKey {
         case .showTemperature: return "Prikazati temperaturu"
         case .showHumidity: return "Prikazati vlažnost"
         case .showWind: return "Prikazati vetar"
+        case .metric: return "Метрички"
+        case .imperial: return "Империјални"
         }
     }
 } 
