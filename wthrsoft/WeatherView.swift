@@ -1481,7 +1481,7 @@ private struct SearchBar: View {
             
             TextField("", text: $text)
                 .placeholder(when: text.isEmpty) {
-                    Text("Enter city name")
+                    Text(LocalizationKey.enterCity.localizedString(for: localizationManager.currentLanguage))
                         .foregroundColor(themeManager.currentTheme.text.opacity(0.6))
                 }
                 .textFieldStyle(PlainTextFieldStyle())

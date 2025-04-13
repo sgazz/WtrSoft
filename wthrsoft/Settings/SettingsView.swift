@@ -15,11 +15,121 @@ struct SettingsView: View {
     @State private var deviceDataEnabled = true
     
     private var isDarkMode: Bool {
-        colorScheme == .dark
+        switch selectedTheme {
+        case "dark":
+            return true
+        case "light":
+            return false
+        case "system":
+            return colorScheme == .dark
+        default: // "auto"
+            let calendar = Calendar.current
+            let now = Date()
+            let hour = calendar.component(.hour, from: now)
+            
+            switch hour {
+            case 5..<7: return false  // dawn
+            case 7..<11: return false // morning
+            case 11..<15: return false // noon
+            case 15..<19: return false // evening
+            case 19..<21: return true  // sunset
+            default: return true      // night
+            }
+        }
     }
     
-    private var backgroundColor: Color {
-        isDarkMode ? Color(red: 0.1, green: 0.1, blue: 0.12) : Color(red: 0.95, green: 0.95, blue: 0.97)
+    private var backgroundColor: LinearGradient {
+        let calendar = Calendar.current
+        let now = Date()
+        let hour = calendar.component(.hour, from: now)
+        
+        switch selectedTheme {
+        case "light":
+            return LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "FFFFFF").opacity(0.9),
+                    Color(hex: "F0F0F0").opacity(0.8),
+                    Color(hex: "E0E0E0").opacity(0.7)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case "dark":
+            return LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "000000").opacity(0.9),
+                    Color(hex: "1C1C1E").opacity(0.8),
+                    Color(hex: "2C2C2E").opacity(0.7)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case "system":
+            return colorScheme == .dark ? ThemeColors.dark.background : ThemeColors.light.background
+        default: // "auto"
+            switch hour {
+            case 5..<7: // dawn
+                return LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(hex: "FFB6C1").opacity(0.8),
+                        Color(hex: "FFA07A").opacity(0.6),
+                        Color(hex: "FFE4E1").opacity(0.4)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            case 7..<11: // morning
+                return LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(hex: "87CEEB").opacity(0.8),
+                        Color(hex: "B0E0E6").opacity(0.6),
+                        Color(hex: "F0F8FF").opacity(0.4)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            case 11..<15: // noon
+                return LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(hex: "FFD700").opacity(0.8),
+                        Color(hex: "FFA500").opacity(0.6),
+                        Color(hex: "FFE4B5").opacity(0.4)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            case 15..<19: // evening
+                return LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(hex: "FF8C00").opacity(0.8),
+                        Color(hex: "FF4500").opacity(0.6),
+                        Color(hex: "FFD700").opacity(0.4)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            case 19..<21: // sunset
+                return LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(hex: "FF6347").opacity(0.8),
+                        Color(hex: "FF4500").opacity(0.6),
+                        Color(hex: "8B0000").opacity(0.4)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            default: // night
+                return LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(hex: "191970").opacity(0.8),
+                        Color(hex: "000080").opacity(0.6),
+                        Color(hex: "000000").opacity(0.4)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        }
     }
     
     private var textColor: Color {
@@ -27,11 +137,37 @@ struct SettingsView: View {
     }
     
     private var secondaryTextColor: Color {
-        isDarkMode ? .gray : .gray.opacity(0.8)
+        isDarkMode ? Color.white.opacity(0.7) : Color.black.opacity(0.6)
     }
     
     private var accentColor: Color {
         isDarkMode ? Color(red: 0.4, green: 0.7, blue: 1.0) : Color(red: 0.0, green: 0.5, blue: 1.0)
+    }
+    
+    private var cardBackgroundColor: Color {
+        switch selectedTheme {
+        case "light":
+            return .white
+        case "dark":
+            return Color(red: 0.17, green: 0.17, blue: 0.19)
+        case "system":
+            return colorScheme == .dark ? Color(red: 0.17, green: 0.17, blue: 0.19) : .white
+        default: // "auto"
+            return isDarkMode ? Color(red: 0.17, green: 0.17, blue: 0.19) : .white
+        }
+    }
+
+    private var pickerBackgroundColor: Color {
+        switch selectedTheme {
+        case "light":
+            return .white
+        case "dark":
+            return Color(red: 0.2, green: 0.2, blue: 0.22)
+        case "system":
+            return colorScheme == .dark ? Color(red: 0.2, green: 0.2, blue: 0.22) : .white
+        default: // "auto"
+            return isDarkMode ? Color(red: 0.2, green: 0.2, blue: 0.22) : .white
+        }
     }
     
     var body: some View {
@@ -40,7 +176,7 @@ struct SettingsView: View {
                 backgroundColor.ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 15) {
                         settingsSection(title: localizationManager.localizedString(.language), icon: "globe") {
                             languagePicker
                         }
@@ -67,13 +203,6 @@ struct SettingsView: View {
             .navigationTitle(localizationManager.localizedString(.settings))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark")
-                            .foregroundColor(textColor)
-                    }
-                }
-                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: saveSettings) {
                         Text(localizationManager.localizedString(.done))
@@ -95,9 +224,10 @@ struct SettingsView: View {
     }
     
     private func settingsSection<Content: View>(title: String, icon: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 15) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: icon)
+                    .font(.system(size: 18, weight: .medium))
                     .foregroundColor(accentColor)
                 Text(title)
                     .font(.headline)
@@ -109,10 +239,10 @@ struct SettingsView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 15)
-                .fill(isDarkMode ? Color(red: 0.15, green: 0.15, blue: 0.17) : .white)
+                .fill(cardBackgroundColor)
                 .shadow(
-                    color: isDarkMode ? Color.black.opacity(0.3) : Color.black.opacity(0.1),
-                    radius: isDarkMode ? 8 : 5,
+                    color: isDarkMode ? Color.black.opacity(0.4) : Color.black.opacity(0.1),
+                    radius: isDarkMode ? 10 : 5,
                     x: 0,
                     y: isDarkMode ? 4 : 2
                 )
@@ -124,22 +254,36 @@ struct SettingsView: View {
             ForEach(Language.allCases) { language in
                 Text(language.displayName)
                     .tag(language)
+                    .foregroundColor(textColor)
             }
         }
         .pickerStyle(.segmented)
+        .tint(accentColor)
+        .background(pickerBackgroundColor)
+        .preferredColorScheme(selectedTheme == "light" ? .light : (selectedTheme == "dark" ? .dark : colorScheme))
     }
     
     private var themePicker: some View {
         Picker("", selection: $selectedTheme) {
             Text(localizationManager.localizedString(.themeAuto)).tag("auto")
+                .foregroundColor(textColor)
             Text(localizationManager.localizedString(.themeLight)).tag("light")
+                .foregroundColor(textColor)
             Text(localizationManager.localizedString(.themeDark)).tag("dark")
+                .foregroundColor(textColor)
             Text(localizationManager.localizedString(.themeSystem)).tag("system")
+                .foregroundColor(textColor)
         }
         .pickerStyle(.segmented)
+        .tint(accentColor)
+        .background(pickerBackgroundColor)
+        .preferredColorScheme(selectedTheme == "light" ? .light : (selectedTheme == "dark" ? .dark : colorScheme))
         .onChange(of: selectedTheme) { _, newValue in
             UserDefaults.standard.set(newValue, forKey: "selectedTheme")
             NotificationCenter.default.post(name: NSNotification.Name("ThemeChanged"), object: nil)
+            withAnimation(.easeInOut(duration: 0.3)) {
+                themeManager.objectWillChange.send()
+            }
         }
     }
     

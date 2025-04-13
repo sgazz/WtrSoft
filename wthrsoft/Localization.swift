@@ -13,7 +13,7 @@ enum Language: String, CaseIterable, Identifiable {
         case .english: return "English"
         case .german: return "Deutsch"
         case .russian: return "Русский"
-        case .serbian: return "Српски"
+        case .serbian: return "Srpski"
         }
     }
 }
