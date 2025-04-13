@@ -1481,7 +1481,7 @@ private struct SearchBar: View {
             
             TextField("", text: $text)
                 .placeholder(when: text.isEmpty) {
-                    Text("Enter city name")
+                    Text(LocalizationKey.enterCity.localizedString(for: localizationManager.currentLanguage))
                         .foregroundColor(themeManager.currentTheme.text.opacity(0.6))
                 }
                 .textFieldStyle(PlainTextFieldStyle())
@@ -1498,7 +1498,7 @@ private struct SearchBar: View {
             RoundedRectangle(cornerRadius: 15)
                 .fill(themeManager.currentTheme.cardBackground.opacity(0.8))
         )
-        .onChange(of: isSearching) { newValue in
+        .onChange(of: isSearching) { oldValue, newValue in
             if newValue {
                 isFocused = true
             }
