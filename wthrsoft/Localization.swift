@@ -123,6 +123,11 @@ enum LocalizationKey {
     case showSunriseSunset
     case showVisibility
     case showFeelsLike
+    case favorites
+    case noFavorites
+    case addToFavorites
+    case removeFromFavorites
+    case delete
     
     func localizedString(for language: Language) -> String {
         switch self {
@@ -429,6 +434,41 @@ enum LocalizationKey {
             case .russian: return "Показывать температуру"
             case .serbian: return "Приказати температуру"
             }
+        case .favorites:
+            switch language {
+            case .english: return "Favorites"
+            case .german: return "Favoriten"
+            case .russian: return "Избранное"
+            case .serbian: return "Омиљене локације"
+            }
+        case .noFavorites:
+            switch language {
+            case .english: return "No favorite locations"
+            case .german: return "Keine Favoriten"
+            case .russian: return "Нет избранных мест"
+            case .serbian: return "Нема омиљених локација"
+            }
+        case .addToFavorites:
+            switch language {
+            case .english: return "Add to Favorites"
+            case .german: return "Zu Favoriten hinzufügen"
+            case .russian: return "Добавить в избранное"
+            case .serbian: return "Додај у омиљене"
+            }
+        case .removeFromFavorites:
+            switch language {
+            case .english: return "Remove from Favorites"
+            case .german: return "Aus Favoriten entfernen"
+            case .russian: return "Удалить из избранного"
+            case .serbian: return "Уклони из омиљених"
+            }
+        case .delete:
+            switch language {
+            case .english: return "Delete"
+            case .german: return "Löschen"
+            case .russian: return "Обриши"
+            case .serbian: return "Обриши"
+            }
         }
     }
     
@@ -515,6 +555,11 @@ enum LocalizationKey {
         case .showSunriseSunset: return "Show Sunrise/Sunset"
         case .showVisibility: return "Show Visibility"
         case .showFeelsLike: return "Show 'Feels Like' Temperature"
+        case .favorites: return "Favorites"
+        case .noFavorites: return "No favorite locations"
+        case .addToFavorites: return "Add to Favorites"
+        case .removeFromFavorites: return "Remove from Favorites"
+        case .delete: return "Delete"
         }
     }
     
@@ -601,6 +646,11 @@ enum LocalizationKey {
         case .showSunriseSunset: return "Sonnenauf-/untergang anzeigen"
         case .showVisibility: return "Sichtweite anzeigen"
         case .showFeelsLike: return "Gefühlte Temperatur anzeigen"
+        case .favorites: return "Favoriten"
+        case .noFavorites: return "Keine Favoriten"
+        case .addToFavorites: return "Zu Favoriten hinzufügen"
+        case .removeFromFavorites: return "Aus Favoriten entfernen"
+        case .delete: return "Löschen"
         }
     }
     
@@ -687,6 +737,11 @@ enum LocalizationKey {
         case .showSunriseSunset: return "Показывать восход/закат"
         case .showVisibility: return "Показывать видимость"
         case .showFeelsLike: return "Показывать ощущаемую температуру"
+        case .favorites: return "Избранное"
+        case .noFavorites: return "Нет избранных мест"
+        case .addToFavorites: return "Добавить в избранное"
+        case .removeFromFavorites: return "Удалить из избранного"
+        case .delete: return "Обриши"
         }
     }
     
@@ -773,6 +828,11 @@ enum LocalizationKey {
         case .showSunriseSunset: return "Приказати излазак/залазак сунца"
         case .showVisibility: return "Приказати видљивост"
         case .showFeelsLike: return "Приказати субјективни осећај"
+        case .favorites: return "Омиљене локације"
+        case .noFavorites: return "Нема омиљених локација"
+        case .addToFavorites: return "Додај у омиљене"
+        case .removeFromFavorites: return "Уклони из омиљeniх"
+        case .delete: return "Обриши"
         }
     }
 } 

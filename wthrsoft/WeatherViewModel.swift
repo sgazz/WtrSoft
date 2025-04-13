@@ -80,7 +80,8 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 do {
                     let decoder = JSONDecoder()
                     let weather = try decoder.decode(WeatherResponse.self, from: data)
-                    self?.currentWeather = weather
+                    self?.weather = weather
+                    self?.cityName = weather.name
                     
                     // Nakon uspešnog učitavanja trenutnog vremena, učitaj prognozu
                     self?.fetchForecast(for: city)
@@ -146,6 +147,7 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 if let decoded = try? JSONDecoder().decode(WeatherResponse.self, from: data) {
                     DispatchQueue.main.async {
                         self?.weather = decoded
+                        self?.cityName = decoded.name
                     }
                 }
             }
@@ -155,7 +157,7 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     private func fetchForecastData(from urlString: String) {
         guard let url = URL(string: urlString) else { return }
         
-        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
             if let data = data,
                let decoded = try? JSONDecoder().decode(ForecastResponse.self, from: data) {
                 DispatchQueue.main.async {
@@ -215,6 +217,7 @@ struct WeatherResponse: Codable {
     let visibility: Int
     let dt: TimeInterval
     let timezone: Int
+    let coord: Coord
 }
 
 struct Main: Codable {
@@ -240,6 +243,11 @@ struct Sys: Codable {
     let sunrise: TimeInterval
     let sunset: TimeInterval
     let country: String
+}
+
+struct Coord: Codable {
+    let lat: Double
+    let lon: Double
 }
 
 // Forecast structures
