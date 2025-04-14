@@ -737,6 +737,11 @@ private struct WeatherInfoView: View {
         let date = Date(timeIntervalSince1970: timestamp)
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
+        
+        // Креирамо TimeZone од померања у секундама
+        let timezone = TimeZone(secondsFromGMT: weather.timezone) ?? TimeZone.current
+        formatter.timeZone = timezone
+        
         return formatter.string(from: date)
     }
 }
