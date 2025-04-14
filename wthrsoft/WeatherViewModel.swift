@@ -158,6 +158,10 @@ class WeatherViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         
         return formatter.string(from: date)
     }
+
+    private func metersPerSecondToKilometersPerHour(_ mps: Double) -> Double {
+        return mps * 3.6 // 1 m/s = 3.6 km/h
+    }
 }
 
 // Model structures

@@ -122,6 +122,7 @@ enum LocalizationKey {
     case addToFavorites
     case removeFromFavorites
     case delete
+    case windSpeed
     
     func localizedString(for language: Language) -> String {
         switch language {
@@ -218,6 +219,7 @@ enum LocalizationKey {
         case .addToFavorites: return "Add to Favorites"
         case .removeFromFavorites: return "Remove from Favorites"
         case .delete: return "Delete"
+        case .windSpeed: return "Wind Speed"
         }
     }
     
@@ -303,6 +305,7 @@ enum LocalizationKey {
         case .addToFavorites: return "Zu Favoriten hinzufügen"
         case .removeFromFavorites: return "Aus Favoriten entfernen"
         case .delete: return "Löschen"
+        case .windSpeed: return "Windgeschwindigkeit"
         }
     }
     
@@ -388,6 +391,7 @@ enum LocalizationKey {
         case .addToFavorites: return "Добавить в избранное"
         case .removeFromFavorites: return "Удалить из избранного"
         case .delete: return "Удалить"
+        case .windSpeed: return "Скорость ветра"
         }
     }
     
@@ -473,6 +477,7 @@ enum LocalizationKey {
         case .addToFavorites: return "Додај у омиљене"
         case .removeFromFavorites: return "Уклоni iz omiљeniх"
         case .delete: return "Обриши"
+        case .windSpeed: return "Брзина ветра"
         }
     }
 } 

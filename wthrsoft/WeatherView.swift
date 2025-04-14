@@ -615,7 +615,7 @@ private struct WeatherInfoView: View {
             if showWindDetails {
                 WeatherDataRow(
                     title: localizationManager.localizedString(.wind),
-                    value: "\(weather.wind.speed) m/s",
+                    value: "\(Int(weather.wind.speed * 3.6)) km/h",
                     icon: "wind",
                     delay: 0.3,
                     condition: weatherCondition
@@ -1064,7 +1064,7 @@ private struct ForecastItemView: View {
                     WeatherDetailRow(icon: "thermometer.low", value: "\(Int(item.main.temp_min))℃")
                     WeatherDetailRow(icon: "thermometer.high", value: "\(Int(item.main.temp_max))℃")
                     WeatherDetailRow(icon: "humidity.fill", value: "\(item.main.humidity)%")
-                    WeatherDetailRow(icon: "wind", value: "\(Int(item.wind.speed))m/s")
+                    WeatherDetailRow(icon: "wind", value: "\(Int(item.wind.speed * 3.6)) km/h")
                 }
                 .padding(.top, 8)
                 .transition(.scale.combined(with: .opacity))
@@ -1536,6 +1536,16 @@ private struct SearchBar: View {
                         text = "" // Брисање текста након претраге
                     }
                 }
+            
+            if isSearching {
+                Button(action: {
+                    text = ""
+                    isSearching = false
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(themeManager.currentTheme.text.opacity(0.6))
+                }
+            }
         }
         .padding(12)
         .background(
