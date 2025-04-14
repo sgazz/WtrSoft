@@ -97,7 +97,6 @@ enum LocalizationKey {
     case version
     case done
     case theme
-    case themeAuto
     case themeLight
     case themeDark
     case themeSystem
@@ -194,7 +193,6 @@ enum LocalizationKey {
         case .version: return "Version"
         case .done: return "Done"
         case .theme: return "Theme"
-        case .themeAuto: return "Automatic"
         case .themeLight: return "Light"
         case .themeDark: return "Dark"
         case .themeSystem: return "System"
@@ -279,8 +277,7 @@ enum LocalizationKey {
         case .about: return "Über"
         case .version: return "Version"
         case .done: return "Fertig"
-        case .theme: return "Design"
-        case .themeAuto: return "Automatisch"
+        case .theme: return "Thema"
         case .themeLight: return "Hell"
         case .themeDark: return "Dunkel"
         case .themeSystem: return "System"
@@ -366,7 +363,6 @@ enum LocalizationKey {
         case .version: return "Версия"
         case .done: return "Готово"
         case .theme: return "Тема"
-        case .themeAuto: return "Автоматическая"
         case .themeLight: return "Светлая"
         case .themeDark: return "Тёмная"
         case .themeSystem: return "Системная"
@@ -451,11 +447,10 @@ enum LocalizationKey {
         case .about: return "O aplikaciji"
         case .version: return "Verzija"
         case .done: return "Gotovo"
-        case .theme: return "Tema"
-        case .themeAuto: return "Automatska"
-        case .themeLight: return "Svetla"
-        case .themeDark: return "Tamna"
-        case .themeSystem: return "Sistemska"
+        case .theme: return "Тема"
+        case .themeLight: return "Светла"
+        case .themeDark: return "Тамна"
+        case .themeSystem: return "Системска"
         case .selectTheme: return "Izaberite temu"
         case .dataDisplay: return "Prikaz podataka"
         case .showMoonDetails: return "Prikazati detalje o mesecu"
@@ -476,7 +471,7 @@ enum LocalizationKey {
         case .favorites: return "Омиљене локације"
         case .noFavorites: return "Нема омиљених локација"
         case .addToFavorites: return "Додај у омиљене"
-        case .removeFromFavorites: return "Уклони из омиљених"
+        case .removeFromFavorites: return "Уклоni iz omiљeniх"
         case .delete: return "Обриши"
         }
     }

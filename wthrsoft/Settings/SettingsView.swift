@@ -6,7 +6,7 @@ struct SettingsView: View {
     @StateObject private var themeManager = ThemeManager()
     @StateObject private var localizationManager = LocalizationManager.shared
     @State private var selectedLanguage = "sr"
-    @State private var selectedTheme = "auto"
+    @State private var selectedTheme = "system"
     @State private var showTemperature = true
     @State private var showHumidity = true
     @State private var showWind = true
@@ -20,29 +20,12 @@ struct SettingsView: View {
             return true
         case "light":
             return false
-        case "system":
+        default: // "system"
             return colorScheme == .dark
-        default: // "auto"
-            let calendar = Calendar.current
-            let now = Date()
-            let hour = calendar.component(.hour, from: now)
-            
-            switch hour {
-            case 5..<7: return false  // dawn
-            case 7..<11: return false // morning
-            case 11..<15: return false // noon
-            case 15..<19: return false // evening
-            case 19..<21: return true  // sunset
-            default: return true      // night
-            }
         }
     }
     
     private var backgroundColor: LinearGradient {
-        let calendar = Calendar.current
-        let now = Date()
-        let hour = calendar.component(.hour, from: now)
-        
         switch selectedTheme {
         case "light":
             return LinearGradient(
@@ -64,71 +47,8 @@ struct SettingsView: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-        case "system":
+        default: // "system"
             return colorScheme == .dark ? ThemeColors.dark.background : ThemeColors.light.background
-        default: // "auto"
-            switch hour {
-            case 5..<7: // dawn
-                return LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(hex: "FFB6C1").opacity(0.8),
-                        Color(hex: "FFA07A").opacity(0.6),
-                        Color(hex: "FFE4E1").opacity(0.4)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            case 7..<11: // morning
-                return LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(hex: "87CEEB").opacity(0.8),
-                        Color(hex: "B0E0E6").opacity(0.6),
-                        Color(hex: "F0F8FF").opacity(0.4)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            case 11..<15: // noon
-                return LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(hex: "FFD700").opacity(0.8),
-                        Color(hex: "FFA500").opacity(0.6),
-                        Color(hex: "FFE4B5").opacity(0.4)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            case 15..<19: // evening
-                return LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(hex: "FF8C00").opacity(0.8),
-                        Color(hex: "FF4500").opacity(0.6),
-                        Color(hex: "FFD700").opacity(0.4)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            case 19..<21: // sunset
-                return LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(hex: "FF6347").opacity(0.8),
-                        Color(hex: "FF4500").opacity(0.6),
-                        Color(hex: "8B0000").opacity(0.4)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            default: // night
-                return LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(hex: "191970").opacity(0.8),
-                        Color(hex: "000080").opacity(0.6),
-                        Color(hex: "000000").opacity(0.4)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            }
         }
     }
     
@@ -212,7 +132,7 @@ struct SettingsView: View {
             }
             .onAppear {
                 // Učitaj sačuvane vrednosti
-                selectedTheme = UserDefaults.standard.string(forKey: "selectedTheme") ?? "auto"
+                selectedTheme = UserDefaults.standard.string(forKey: "selectedTheme") ?? "system"
                 showTemperature = UserDefaults.standard.bool(forKey: "showTemperature")
                 showHumidity = UserDefaults.standard.bool(forKey: "showHumidity")
                 showWind = UserDefaults.standard.bool(forKey: "showWind")
@@ -265,8 +185,6 @@ struct SettingsView: View {
     
     private var themePicker: some View {
         Picker("", selection: $selectedTheme) {
-            Text(localizationManager.localizedString(.themeAuto)).tag("auto")
-                .foregroundColor(textColor)
             Text(localizationManager.localizedString(.themeLight)).tag("light")
                 .foregroundColor(textColor)
             Text(localizationManager.localizedString(.themeDark)).tag("dark")

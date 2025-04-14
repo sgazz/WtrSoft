@@ -1,26 +1,5 @@
 import SwiftUI
 
-enum TimeOfDay {
-    case dawn      // 5:00 - 7:00
-    case morning   // 7:00 - 11:00
-    case noon      // 11:00 - 15:00
-    case evening   // 15:00 - 19:00
-    case sunset    // 19:00 - 21:00
-    case night     // 21:00 - 5:00
-    
-    static func current() -> TimeOfDay {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 5..<7: return .dawn
-        case 7..<11: return .morning
-        case 11..<15: return .noon
-        case 15..<19: return .evening
-        case 19..<21: return .sunset
-        default: return .night
-        }
-    }
-}
-
 struct ThemeColors {
     let background: LinearGradient
     let text: Color
@@ -204,15 +183,12 @@ struct ThemeColors {
 // Dodajemo timer za ažuriranje teme
 class ThemeManager: ObservableObject {
     @Published var currentTheme: ThemeColors
-    private var timer: Timer?
-    private var cityTimezone: TimeZone?
-    @AppStorage("selectedTheme") private var selectedTheme = "auto"
+    @AppStorage("selectedTheme") private var selectedTheme = "system"
     @AppStorage("enableAnimations") private var enableAnimations = true
     @AppStorage("animationSpeed") private var animationSpeed = "normal"
     
     init() {
-        self.currentTheme = ThemeColors.current()
-        startTimer()
+        self.currentTheme = ThemeColors.system
         
         NotificationCenter.default.addObserver(
             self,
@@ -220,11 +196,6 @@ class ThemeManager: ObservableObject {
             name: UserDefaults.didChangeNotification,
             object: nil
         )
-    }
-    
-    func updateTimezone(_ timezone: TimeZone) {
-        self.cityTimezone = timezone
-        updateTheme()
     }
     
     @objc private func updateThemeFromSettings() {
@@ -238,13 +209,10 @@ class ThemeManager: ObservableObject {
             newTheme = ThemeColors.light
         case "dark":
             newTheme = ThemeColors.dark
-        case "system":
+        default: // "system"
             newTheme = ThemeColors.system
-        default: // "auto"
-            newTheme = ThemeColors.current(timezone: cityTimezone)
         }
         
-        // Ažuriramo temu samo ako se stvarno promenila
         if !areThemesEqual(currentTheme, newTheme) {
             DispatchQueue.main.async {
                 withAnimation(.easeInOut(duration: 0.3)) {
@@ -255,23 +223,11 @@ class ThemeManager: ObservableObject {
     }
     
     private func areThemesEqual(_ theme1: ThemeColors, _ theme2: ThemeColors) -> Bool {
-        // Poredimo samo relevantne vrednosti koje možemo porediti
         theme1.text == theme2.text &&
         theme1.accent == theme2.accent &&
         theme1.secondary == theme2.secondary &&
         theme1.cardBackground == theme2.cardBackground &&
         theme1.cardShadow == theme2.cardShadow
-    }
-    
-    private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { [weak self] _ in
-            self?.updateTheme()
-        }
-    }
-    
-    deinit {
-        timer?.invalidate()
-        NotificationCenter.default.removeObserver(self)
     }
     
     var animationDuration: Double {
