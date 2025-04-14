@@ -328,11 +328,11 @@ struct WeatherView: View {
                             favoritesManager.removeFavorite(location)
                         }
                     } else {
-                        favoritesManager.addFavorite(
+                        favoritesManager.addFavorite(Location(
                             name: viewModel.cityName,
-                            latitude: viewModel.weather?.coord.lat ?? 0,
-                            longitude: viewModel.weather?.coord.lon ?? 0
-                        )
+                            lat: viewModel.weather?.coord.lat ?? 0,
+                            lon: viewModel.weather?.coord.lon ?? 0
+                        ))
                     }
                 }) {
                     Image(systemName: favoritesManager.isFavorite(name: viewModel.cityName) ? "star.fill" : "star")
@@ -401,8 +401,8 @@ struct WeatherView: View {
         }
         .sheet(isPresented: $showingFavorites) {
             FavoritesView { location in
-                searchText = location
-                viewModel.fetchWeather(for: location)
+                searchText = location.name
+                viewModel.fetchWeather(for: location.name)
             }
             .environmentObject(themeManager)
         }
