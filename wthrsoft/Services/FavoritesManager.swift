@@ -1,45 +1,53 @@
 import Foundation
-import SwiftUI
 
 class FavoritesManager: ObservableObject {
-    @Published private(set) var favorites: [FavoriteLocation] = []
-    private let userDefaults = UserDefaults.standard
-    private let favoritesKey = "favoriteLocations"
-    
     static let shared = FavoritesManager()
+    
+    @Published var favorites: [Location] = []
+    
+    private let favoritesKey = "favorites"
     
     private init() {
         loadFavorites()
     }
     
-    private func loadFavorites() {
-        guard let data = userDefaults.data(forKey: favoritesKey),
-              let decodedFavorites = try? JSONDecoder().decode([FavoriteLocation].self, from: data) else {
-            return
-        }
-        favorites = decodedFavorites
-    }
-    
-    private func saveFavorites() {
-        guard let encoded = try? JSONEncoder().encode(favorites) else { return }
-        userDefaults.set(encoded, forKey: favoritesKey)
-        objectWillChange.send()
-    }
-    
-    func addFavorite(name: String, latitude: Double, longitude: Double) {
-        let newLocation = FavoriteLocation(name: name, latitude: latitude, longitude: longitude)
-        if !favorites.contains(where: { $0.name == name }) {
-            favorites.append(newLocation)
+    func addFavorite(_ location: Location) {
+        if !isFavorite(name: location.name) {
+            favorites.append(location)
             saveFavorites()
         }
     }
     
-    func removeFavorite(_ location: FavoriteLocation) {
-        favorites.removeAll { $0.id == location.id }
+    func removeFavorite(_ location: Location) {
+        favorites.removeAll { $0.name == location.name }
         saveFavorites()
     }
     
     func isFavorite(name: String) -> Bool {
-        favorites.contains { $0.name == name }
+        return favorites.contains { $0.name == name }
+    }
+    
+    private func saveFavorites() {
+        if let encoded = try? JSONEncoder().encode(favorites) {
+            UserDefaults.standard.set(encoded, forKey: favoritesKey)
+        }
+    }
+    
+    private func loadFavorites() {
+        if let data = UserDefaults.standard.data(forKey: favoritesKey),
+           let decoded = try? JSONDecoder().decode([Location].self, from: data) {
+            favorites = decoded
+        }
+    }
+}
+
+struct Location: Codable, Identifiable {
+    let id = UUID()
+    let name: String
+    let lat: Double
+    let lon: Double
+    
+    enum CodingKeys: String, CodingKey {
+        case name, lat, lon
     }
 } 

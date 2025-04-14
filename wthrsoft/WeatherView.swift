@@ -1,26 +1,5 @@
 import SwiftUI
 
-enum TimeOfDay {
-    case dawn      // 5:00 - 7:00
-    case morning   // 7:00 - 11:00
-    case noon      // 11:00 - 15:00
-    case evening   // 15:00 - 19:00
-    case sunset    // 19:00 - 21:00
-    case night     // 21:00 - 5:00
-    
-    static func current() -> TimeOfDay {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 5..<7: return .dawn
-        case 7..<11: return .morning
-        case 11..<15: return .noon
-        case 15..<19: return .evening
-        case 19..<21: return .sunset
-        default: return .night
-        }
-    }
-}
-
 struct ThemeColors {
     let background: LinearGradient
     let text: Color
@@ -204,15 +183,12 @@ struct ThemeColors {
 // Dodajemo timer za ažuriranje teme
 class ThemeManager: ObservableObject {
     @Published var currentTheme: ThemeColors
-    private var timer: Timer?
-    private var cityTimezone: TimeZone?
-    @AppStorage("selectedTheme") private var selectedTheme = "auto"
+    @AppStorage("selectedTheme") private var selectedTheme = "system"
     @AppStorage("enableAnimations") private var enableAnimations = true
     @AppStorage("animationSpeed") private var animationSpeed = "normal"
     
     init() {
-        self.currentTheme = ThemeColors.current()
-        startTimer()
+        self.currentTheme = ThemeColors.system
         
         NotificationCenter.default.addObserver(
             self,
@@ -220,11 +196,6 @@ class ThemeManager: ObservableObject {
             name: UserDefaults.didChangeNotification,
             object: nil
         )
-    }
-    
-    func updateTimezone(_ timezone: TimeZone) {
-        self.cityTimezone = timezone
-        updateTheme()
     }
     
     @objc private func updateThemeFromSettings() {
@@ -238,13 +209,10 @@ class ThemeManager: ObservableObject {
             newTheme = ThemeColors.light
         case "dark":
             newTheme = ThemeColors.dark
-        case "system":
+        default: // "system"
             newTheme = ThemeColors.system
-        default: // "auto"
-            newTheme = ThemeColors.current(timezone: cityTimezone)
         }
         
-        // Ažuriramo temu samo ako se stvarno promenila
         if !areThemesEqual(currentTheme, newTheme) {
             DispatchQueue.main.async {
                 withAnimation(.easeInOut(duration: 0.3)) {
@@ -255,23 +223,11 @@ class ThemeManager: ObservableObject {
     }
     
     private func areThemesEqual(_ theme1: ThemeColors, _ theme2: ThemeColors) -> Bool {
-        // Poredimo samo relevantne vrednosti koje možemo porediti
         theme1.text == theme2.text &&
         theme1.accent == theme2.accent &&
         theme1.secondary == theme2.secondary &&
         theme1.cardBackground == theme2.cardBackground &&
         theme1.cardShadow == theme2.cardShadow
-    }
-    
-    private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { [weak self] _ in
-            self?.updateTheme()
-        }
-    }
-    
-    deinit {
-        timer?.invalidate()
-        NotificationCenter.default.removeObserver(self)
     }
     
     var animationDuration: Double {
@@ -372,11 +328,11 @@ struct WeatherView: View {
                             favoritesManager.removeFavorite(location)
                         }
                     } else {
-                        favoritesManager.addFavorite(
+                        favoritesManager.addFavorite(Location(
                             name: viewModel.cityName,
-                            latitude: viewModel.weather?.coord.lat ?? 0,
-                            longitude: viewModel.weather?.coord.lon ?? 0
-                        )
+                            lat: viewModel.weather?.coord.lat ?? 0,
+                            lon: viewModel.weather?.coord.lon ?? 0
+                        ))
                     }
                 }) {
                     Image(systemName: favoritesManager.isFavorite(name: viewModel.cityName) ? "star.fill" : "star")
@@ -445,12 +401,11 @@ struct WeatherView: View {
         }
         .sheet(isPresented: $showingFavorites) {
             FavoritesView { location in
-                searchText = location
-                viewModel.fetchWeather(for: location)
+                searchText = location.name
+                viewModel.fetchWeather(for: location.name)
             }
             .environmentObject(themeManager)
         }
-        .environmentObject(viewModel)
         .sheet(isPresented: $showingSettings) {
             SettingsView()
         }
@@ -464,7 +419,7 @@ struct WeatherView: View {
 private struct WeatherInfoView: View {
     let weather: WeatherResponse
     @StateObject private var localizationManager = LocalizationManager.shared
-    @EnvironmentObject private var viewModel: WeatherViewModel
+    @StateObject private var viewModel = WeatherViewModel()
     @State private var currentTime = ""
     @State private var isAppeared = false
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -476,14 +431,6 @@ private struct WeatherInfoView: View {
     
     private var weatherCondition: String {
         weather.weather.first?.description ?? ""
-    }
-    
-    private var temperatureUnit: String {
-        viewModel.useMetricUnits ? "℃" : "℉"
-    }
-    
-    private var windSpeedUnit: String {
-        viewModel.useMetricUnits ? "m/s" : "mph"
     }
     
     private var themeColor: Color {
@@ -601,7 +548,7 @@ private struct WeatherInfoView: View {
     
     private var temperatureSection: some View {
         VStack(spacing: 25) {
-            Text("\(Int(weather.main.temp))\(temperatureUnit)")
+            Text("\(Int(weather.main.temp))℃")
                 .font(.system(size: 80, weight: .bold, design: .rounded))
                 .foregroundColor(themeManager.currentTheme.text.opacity(0.95))
                 .shadow(color: themeColor.opacity(0.3), radius: 10)
@@ -611,21 +558,21 @@ private struct WeatherInfoView: View {
             HStack(spacing: 30) {
                 TemperatureInfo(
                     title: localizationManager.localizedString(.minTemp),
-                    value: "\(Int(weather.main.temp_min))\(temperatureUnit)",
+                    value: "\(Int(weather.main.temp_min))℃",
                     icon: "thermometer.low",
                     delay: 0.1,
                     condition: weatherCondition
                 )
                 TemperatureInfo(
                     title: localizationManager.localizedString(.maxTemp),
-                    value: "\(Int(weather.main.temp_max))\(temperatureUnit)",
+                    value: "\(Int(weather.main.temp_max))℃",
                     icon: "thermometer.high",
                     delay: 0.2,
                     condition: weatherCondition
                 )
                 TemperatureInfo(
                     title: localizationManager.localizedString(.feelsLike),
-                    value: "\(Int(weather.main.feels_like))\(temperatureUnit)",
+                    value: "\(Int(weather.main.feels_like))℃",
                     icon: "thermometer.medium",
                     delay: 0.3,
                     condition: weatherCondition
@@ -668,7 +615,7 @@ private struct WeatherInfoView: View {
             if showWindDetails {
                 WeatherDataRow(
                     title: localizationManager.localizedString(.wind),
-                    value: "\(Int(weather.wind.speed)) \(windSpeedUnit)",
+                    value: "\(Int(weather.wind.speed * 3.6)) km/h",
                     icon: "wind",
                     delay: 0.3,
                     condition: weatherCondition
@@ -790,6 +737,11 @@ private struct WeatherInfoView: View {
         let date = Date(timeIntervalSince1970: timestamp)
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
+        
+        // Креирамо TimeZone од померања у секундама
+        let timezone = TimeZone(secondsFromGMT: weather.timezone) ?? TimeZone.current
+        formatter.timeZone = timezone
+        
         return formatter.string(from: date)
     }
 }
@@ -1032,17 +984,8 @@ private struct ForecastItemView: View {
     let isSelected: Bool
     let delay: Double
     @StateObject private var localizationManager = LocalizationManager.shared
-    @EnvironmentObject private var viewModel: WeatherViewModel
     @State private var isAppeared = false
     @EnvironmentObject private var themeManager: ThemeManager
-    
-    private var temperatureUnit: String {
-        viewModel.useMetricUnits ? "℃" : "℉"
-    }
-    
-    private var windSpeedUnit: String {
-        viewModel.useMetricUnits ? "m/s" : "mph"
-    }
     
     private var weatherIcon: String {
         if let condition = item.weather.first?.description {
@@ -1110,7 +1053,7 @@ private struct ForecastItemView: View {
                 .foregroundStyle(iconColor.gradient)
                 .shadow(color: iconColor.opacity(0.5), radius: 8)
             
-            Text("\(Int(item.main.temp))\(temperatureUnit)")
+            Text("\(Int(item.main.temp))℃")
                 .font(.system(.title2, design: .rounded))
                 .fontWeight(.bold)
                 .foregroundColor(themeManager.currentTheme.text)
@@ -1123,10 +1066,10 @@ private struct ForecastItemView: View {
             
             if isSelected {
                 VStack(spacing: 12) {
-                    WeatherDetailRow(icon: "thermometer.low", value: "\(Int(item.main.temp_min))\(temperatureUnit)")
-                    WeatherDetailRow(icon: "thermometer.high", value: "\(Int(item.main.temp_max))\(temperatureUnit)")
+                    WeatherDetailRow(icon: "thermometer.low", value: "\(Int(item.main.temp_min))℃")
+                    WeatherDetailRow(icon: "thermometer.high", value: "\(Int(item.main.temp_max))℃")
                     WeatherDetailRow(icon: "humidity.fill", value: "\(item.main.humidity)%")
-                    WeatherDetailRow(icon: "wind", value: "\(Int(item.wind.speed)) \(windSpeedUnit)")
+                    WeatherDetailRow(icon: "wind", value: "\(Int(item.wind.speed * 3.6)) km/h")
                 }
                 .padding(.top, 8)
                 .transition(.scale.combined(with: .opacity))
@@ -1598,6 +1541,16 @@ private struct SearchBar: View {
                         text = "" // Брисање текста након претраге
                     }
                 }
+            
+            if isSearching {
+                Button(action: {
+                    text = ""
+                    isSearching = false
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(themeManager.currentTheme.text.opacity(0.6))
+                }
+            }
         }
         .padding(12)
         .background(

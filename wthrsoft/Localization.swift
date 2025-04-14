@@ -97,7 +97,6 @@ enum LocalizationKey {
     case version
     case done
     case theme
-    case themeAuto
     case themeLight
     case themeDark
     case themeSystem
@@ -118,357 +117,23 @@ enum LocalizationKey {
     case showTemperature
     case showHumidity
     case showWind
-    case metric
-    case imperial
-    case showSunriseSunset
-    case showVisibility
-    case showFeelsLike
     case favorites
     case noFavorites
     case addToFavorites
     case removeFromFavorites
     case delete
+    case windSpeed
     
     func localizedString(for language: Language) -> String {
-        switch self {
-        case .enterCity: return englishString
-        case .show: return englishString
-        case .loading: return englishString
-        case .temperature: return englishString
-        case .minTemp: return englishString
-        case .maxTemp: return englishString
-        case .feelsLike: return englishString
-        case .description: return englishString
-        case .humidity: return englishString
-        case .wind: return englishString
-        case .pressure: return englishString
-        case .visibility: return englishString
-        case .sunrise: return englishString
-        case .sunset: return englishString
-        case .lastUpdated: return englishString
-        case .forecast: return englishString
-        case .today: return englishString
-        case .tomorrow: return englishString
-        case .close: return englishString
-        case .selectLanguage: return englishString
-        case .monday: return englishString
-        case .tuesday: return englishString
-        case .wednesday: return englishString
-        case .thursday: return englishString
-        case .friday: return englishString
-        case .saturday: return englishString
-        case .sunday: return englishString
-        case .currentTime: return englishString
-        case .jsonData: return englishString
-        case .moonPhase: return englishString
-        case .newMoon: return englishString
-        case .waxingCrescent: return englishString
-        case .firstQuarter: return englishString
-        case .waxingGibbous: return englishString
-        case .fullMoon: return englishString
-        case .waningGibbous: return englishString
-        case .lastQuarter: return englishString
-        case .waningCrescent: return englishString
-        case .moon: return englishString
-        case .moonIllumination: return englishString
-        case .moonRise: return englishString
-        case .moonSet: return englishString
-        case .settings: return englishString
-        case .language: return englishString
-        case .units:
-            switch language {
-            case .english: return "Units"
-            case .german: return "Einheiten"
-            case .russian: return "Единицы измерения"
-            case .serbian: return "Јединице мере"
-            }
-        case .useMetric:
-            switch language {
-            case .english: return "Use Metric Units"
-            case .german: return "Metrische Einheiten verwenden"
-            case .russian: return "Использовать метрическую систему"
-            case .serbian: return "Користи метричке јединице"
-            }
-        case .notifications:
-            switch language {
-            case .english: return "Notifications"
-            case .german: return "Benachrichtigungen"
-            case .russian: return "Уведомления"
-            case .serbian: return "Обавештења"
-            }
-        case .enableNotifications:
-            switch language {
-            case .english: return "Enable Notifications"
-            case .german: return "Benachrichtigungen aktivieren"
-            case .russian: return "Включить уведомления"
-            case .serbian: return "Укључити обавештења"
-            }
-        case .updateSettings:
-            switch language {
-            case .english: return "Update Settings"
-            case .german: return "Einstellungen aktualisieren"
-            case .russian: return "Обновить настройки"
-            case .serbian: return "Ажурирати подешавања"
-            }
-        case .updateInterval:
-            switch language {
-            case .english: return "Update Interval"
-            case .german: return "Aktualisierungsintervall"
-            case .russian: return "Интервал обновления"
-            case .serbian: return "Интервал ажурирања"
-            }
-        case .minutes:
-            switch language {
-            case .english: return "minutes"
-            case .german: return "Minuten"
-            case .russian: return "минут"
-            case .serbian: return "минута"
-            }
-        case .about:
-            switch language {
-            case .english: return "About"
-            case .german: return "Über"
-            case .russian: return "О приложении"
-            case .serbian: return "О апликацији"
-            }
-        case .version:
-            switch language {
-            case .english: return "Version"
-            case .german: return "Version"
-            case .russian: return "Версия"
-            case .serbian: return "Верзија"
-            }
-        case .done:
-            switch language {
-            case .english: return "Done"
-            case .german: return "Fertig"
-            case .russian: return "Готово"
-            case .serbian: return "Готово"
-            }
-        case .theme:
-            switch language {
-            case .english: return "Theme"
-            case .german: return "Design"
-            case .russian: return "Тема"
-            case .serbian: return "Тема"
-            }
-        case .themeAuto:
-            switch language {
-            case .english: return "Automatic"
-            case .german: return "Automatisch"
-            case .russian: return "Автоматическая"
-            case .serbian: return "Аутоматска"
-            }
-        case .themeLight:
-            switch language {
-            case .english: return "Light"
-            case .german: return "Hell"
-            case .russian: return "Светлая"
-            case .serbian: return "Светла"
-            }
-        case .themeDark:
-            switch language {
-            case .english: return "Dark"
-            case .german: return "Dunkel"
-            case .russian: return "Тёмная"
-            case .serbian: return "Тамна"
-            }
-        case .themeSystem:
-            switch language {
-            case .english: return "System"
-            case .german: return "System"
-            case .russian: return "Системная"
-            case .serbian: return "Системска"
-            }
-        case .selectTheme:
-            switch language {
-            case .english: return "Select Theme"
-            case .german: return "Design auswählen"
-            case .russian: return "Выберите тему"
-            case .serbian: return "Изаберите тему"
-            }
-        case .dataDisplay:
-            switch language {
-            case .english: return "Data Display"
-            case .german: return "Datenanzeige"
-            case .russian: return "Отображение данных"
-            case .serbian: return "Приказ података"
-            }
-        case .showMoonDetails:
-            switch language {
-            case .english: return "Show Moon Details"
-            case .german: return "Monddetails anzeigen"
-            case .russian: return "Показать данные о Луне"
-            case .serbian: return "Приказати детаље о месецу"
-            }
-        case .showWindDetails:
-            switch language {
-            case .english: return "Show Wind Details"
-            case .german: return "Winddetails anzeigen"
-            case .russian: return "Показать данные о ветре"
-            case .serbian: return "Приказати детаље о ветру"
-            }
-        case .showPressureDetails:
-            switch language {
-            case .english: return "Show Pressure Details"
-            case .german: return "Luftdruckdetails anzeigen"
-            case .russian: return "Показать данные о давлении"
-            case .serbian: return "Приказати детаље о притиску"
-            }
-        case .showHumidity:
-            switch language {
-            case .english: return "Show Humidity"
-            case .german: return "Luftfeuchtigkeit anzeigen"
-            case .russian: return "Показать влажность"
-            case .serbian: return "Приказати влажност"
-            }
-        case .showWind:
-            switch language {
-            case .english: return "Show Wind"
-            case .german: return "Wind anzeigen"
-            case .russian: return "Показывать ветер"
-            case .serbian: return "Приказати ветар"
-            }
-        case .metric:
-            switch language {
-            case .english: return "Metric"
-            case .german: return "Metrisch"
-            case .russian: return "Метрическая"
-            case .serbian: return "Метрички"
-            }
-        case .imperial:
-            switch language {
-            case .english: return "Imperial"
-            case .german: return "Imperial"
-            case .russian: return "Имперская"
-            case .serbian: return "Империјални"
-            }
-        case .showSunriseSunset:
-            switch language {
-            case .english: return "Show Sunrise/Sunset"
-            case .german: return "Sonnenauf-/untergang anzeigen"
-            case .russian: return "Показывать восход/закат"
-            case .serbian: return "Приказати излазак/залазак сунца"
-            }
-        case .showVisibility:
-            switch language {
-            case .english: return "Show Visibility"
-            case .german: return "Sichtweite anzeigen"
-            case .russian: return "Показывать видимость"
-            case .serbian: return "Приказати видљивост"
-            }
-        case .showFeelsLike:
-            switch language {
-            case .english: return "Show 'Feels Like' Temperature"
-            case .german: return "Gefühlte Temperatur anzeigen"
-            case .russian: return "Показывать ощущаемую температуру"
-            case .serbian: return "Приказати субјективни осећај"
-            }
-        case .animations:
-            switch language {
-            case .english: return "Animations"
-            case .german: return "Animationen"
-            case .russian: return "Анимации"
-            case .serbian: return "Анимације"
-            }
-        case .enableAnimations:
-            switch language {
-            case .english: return "Enable Animations"
-            case .german: return "Animationen aktivieren"
-            case .russian: return "Включить анимации"
-            case .serbian: return "Укључити анимације"
-            }
-        case .animationSpeed:
-            switch language {
-            case .english: return "Animation Speed"
-            case .german: return "Animationsgeschwindigkeit"
-            case .russian: return "Скорость анимации"
-            case .serbian: return "Брзина анимација"
-            }
-        case .animationSpeedFast:
-            switch language {
-            case .english: return "Fast"
-            case .german: return "Schnell"
-            case .russian: return "Быстро"
-            case .serbian: return "Брзо"
-            }
-        case .animationSpeedNormal:
-            switch language {
-            case .english: return "Normal"
-            case .german: return "Normal"
-            case .russian: return "Нормально"
-            case .serbian: return "Нормално"
-            }
-        case .animationSpeedSlow:
-            switch language {
-            case .english: return "Slow"
-            case .german: return "Langsam"
-            case .russian: return "Медленно"
-            case .serbian: return "Споро"
-            }
-        case .privacy:
-            switch language {
-            case .english: return "Privacy"
-            case .german: return "Datenschutz"
-            case .russian: return "Конфиденциальность"
-            case .serbian: return "Приватност"
-            }
-        case .collectUsageData:
-            switch language {
-            case .english: return "Collect Usage Data"
-            case .german: return "Nutzungsdaten sammeln"
-            case .russian: return "Собирать данные об использовании"
-            case .serbian: return "Прикупљање података о коришћењу"
-            }
-        case .locationAccess:
-            switch language {
-            case .english: return "Location Access"
-            case .german: return "Standortzugriff"
-            case .russian: return "Доступ к местоположению"
-            case .serbian: return "Приступ локацији"
-            }
-        case .showTemperature:
-            switch language {
-            case .english: return "Show Temperature"
-            case .german: return "Temperatur anzeigen"
-            case .russian: return "Показывать температуру"
-            case .serbian: return "Приказати температуру"
-            }
-        case .favorites:
-            switch language {
-            case .english: return "Favorites"
-            case .german: return "Favoriten"
-            case .russian: return "Избранное"
-            case .serbian: return "Омиљене локације"
-            }
-        case .noFavorites:
-            switch language {
-            case .english: return "No favorite locations"
-            case .german: return "Keine Favoriten"
-            case .russian: return "Нет избранных мест"
-            case .serbian: return "Нема омиљених локација"
-            }
-        case .addToFavorites:
-            switch language {
-            case .english: return "Add to Favorites"
-            case .german: return "Zu Favoriten hinzufügen"
-            case .russian: return "Добавить в избранное"
-            case .serbian: return "Додај у омиљене"
-            }
-        case .removeFromFavorites:
-            switch language {
-            case .english: return "Remove from Favorites"
-            case .german: return "Aus Favoriten entfernen"
-            case .russian: return "Удалить из избранного"
-            case .serbian: return "Уклони из омиљених"
-            }
-        case .delete:
-            switch language {
-            case .english: return "Delete"
-            case .german: return "Löschen"
-            case .russian: return "Обриши"
-            case .serbian: return "Обриши"
-            }
+        switch language {
+        case .english:
+            return englishString
+        case .german:
+            return germanString
+        case .russian:
+            return russianString
+        case .serbian:
+            return serbianString
         }
     }
     
@@ -529,7 +194,6 @@ enum LocalizationKey {
         case .version: return "Version"
         case .done: return "Done"
         case .theme: return "Theme"
-        case .themeAuto: return "Automatic"
         case .themeLight: return "Light"
         case .themeDark: return "Dark"
         case .themeSystem: return "System"
@@ -550,16 +214,12 @@ enum LocalizationKey {
         case .showTemperature: return "Show Temperature"
         case .showHumidity: return "Show Humidity"
         case .showWind: return "Show Wind"
-        case .metric: return "Metric"
-        case .imperial: return "Imperial"
-        case .showSunriseSunset: return "Show Sunrise/Sunset"
-        case .showVisibility: return "Show Visibility"
-        case .showFeelsLike: return "Show 'Feels Like' Temperature"
         case .favorites: return "Favorites"
         case .noFavorites: return "No favorite locations"
         case .addToFavorites: return "Add to Favorites"
         case .removeFromFavorites: return "Remove from Favorites"
         case .delete: return "Delete"
+        case .windSpeed: return "Wind Speed"
         }
     }
     
@@ -619,8 +279,7 @@ enum LocalizationKey {
         case .about: return "Über"
         case .version: return "Version"
         case .done: return "Fertig"
-        case .theme: return "Design"
-        case .themeAuto: return "Automatisch"
+        case .theme: return "Thema"
         case .themeLight: return "Hell"
         case .themeDark: return "Dunkel"
         case .themeSystem: return "System"
@@ -641,16 +300,12 @@ enum LocalizationKey {
         case .showTemperature: return "Temperatur anzeigen"
         case .showHumidity: return "Luftfeuchtigkeit anzeigen"
         case .showWind: return "Wind anzeigen"
-        case .metric: return "Metrisch"
-        case .imperial: return "Imperial"
-        case .showSunriseSunset: return "Sonnenauf-/untergang anzeigen"
-        case .showVisibility: return "Sichtweite anzeigen"
-        case .showFeelsLike: return "Gefühlte Temperatur anzeigen"
         case .favorites: return "Favoriten"
         case .noFavorites: return "Keine Favoriten"
         case .addToFavorites: return "Zu Favoriten hinzufügen"
         case .removeFromFavorites: return "Aus Favoriten entfernen"
         case .delete: return "Löschen"
+        case .windSpeed: return "Windgeschwindigkeit"
         }
     }
     
@@ -711,7 +366,6 @@ enum LocalizationKey {
         case .version: return "Версия"
         case .done: return "Готово"
         case .theme: return "Тема"
-        case .themeAuto: return "Автоматическая"
         case .themeLight: return "Светлая"
         case .themeDark: return "Тёмная"
         case .themeSystem: return "Системная"
@@ -732,16 +386,12 @@ enum LocalizationKey {
         case .showTemperature: return "Показывать температуру"
         case .showHumidity: return "Показывать влажность"
         case .showWind: return "Показывать ветер"
-        case .metric: return "Метрическая"
-        case .imperial: return "Имперская"
-        case .showSunriseSunset: return "Показывать восход/закат"
-        case .showVisibility: return "Показывать видимость"
-        case .showFeelsLike: return "Показывать ощущаемую температуру"
         case .favorites: return "Избранное"
         case .noFavorites: return "Нет избранных мест"
         case .addToFavorites: return "Добавить в избранное"
         case .removeFromFavorites: return "Удалить из избранного"
-        case .delete: return "Обриши"
+        case .delete: return "Удалить"
+        case .windSpeed: return "Скорость ветра"
         }
     }
     
@@ -801,11 +451,10 @@ enum LocalizationKey {
         case .about: return "O aplikaciji"
         case .version: return "Verzija"
         case .done: return "Gotovo"
-        case .theme: return "Tema"
-        case .themeAuto: return "Automatska"
-        case .themeLight: return "Svetla"
-        case .themeDark: return "Tamna"
-        case .themeSystem: return "Sistemska"
+        case .theme: return "Тема"
+        case .themeLight: return "Светла"
+        case .themeDark: return "Тамна"
+        case .themeSystem: return "Системска"
         case .selectTheme: return "Izaberite temu"
         case .dataDisplay: return "Prikaz podataka"
         case .showMoonDetails: return "Prikazati detalje o mesecu"
@@ -823,16 +472,12 @@ enum LocalizationKey {
         case .showTemperature: return "Prikazati temperaturu"
         case .showHumidity: return "Prikazati vlažnost"
         case .showWind: return "Prikazati vetar"
-        case .metric: return "Метрички"
-        case .imperial: return "Империјални"
-        case .showSunriseSunset: return "Приказати излазак/залазак сунца"
-        case .showVisibility: return "Приказати видљивост"
-        case .showFeelsLike: return "Приказати субјективни осећај"
         case .favorites: return "Омиљене локације"
         case .noFavorites: return "Нема омиљених локација"
         case .addToFavorites: return "Додај у омиљене"
-        case .removeFromFavorites: return "Уклони из омиљeniх"
+        case .removeFromFavorites: return "Уклоni iz omiљeniх"
         case .delete: return "Обриши"
+        case .windSpeed: return "Брзина ветра"
         }
     }
 } 
